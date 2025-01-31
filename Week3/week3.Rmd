@@ -12,6 +12,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(tidycensus)
+library(knitr)
 ```
 
 # Introduction
@@ -19,7 +20,49 @@ library(tidycensus)
 ### you get the idea
 
 Here we go. Let's add some Census Data
-```{r start with data}
-
+```{r start with data,warning=FALSE, message=FALSE}
+NY<-get_acs(geography = "county", 
+        variables = "B01001_001", 
+        state = "NY")
 ```
+
+Let's load some census data
+```{r load data, warning=FALSE, message=FALSE}
+NY_census<- get_decennial(
+  geography="county",
+  variables="P001001",
+  state="NY",
+  year=2010
+)
+head(NY_census)
+```
+```{r}
+vars<-load_variables(2020,"acs5")
+```
+
+explore movers
+```{r get movers, warning=FALSE, message=FALSE}
+moved<-get_acs(geography = "county", 
+        variables = c(move_in="B07001_065", 
+                      pop="B01003_001"),
+        state = "PA",
+        year=2020,
+        survey="acs5",
+        output = "wide"
+        )%>%
+  mutate(moved = round(move_inE/popE*100,2))
+head(moved)
+```
+Which counties in PA have had more than 3% of its population move in from out of state?
+```{r}
+moved_3<-moved%>%
+  filter(moved>3)%>%
+  arrange(desc(moved))
+knitr::kable(moved_3,caption="Top 10 Counties for people moving")
+```
+
+**Bold** and *italic* text.
+`inline code`
+
+
 

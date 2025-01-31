@@ -239,6 +239,106 @@ ul.task-list{list-style: none;}
 
 
 
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ background-color: #f8f8f8; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ef2929; } 
+code span.an { color: #8f5902; font-weight: bold; font-style: italic; } 
+code span.at { color: #204a87; } 
+code span.bn { color: #0000cf; } 
+code span.cf { color: #204a87; font-weight: bold; } 
+code span.ch { color: #4e9a06; } 
+code span.cn { color: #8f5902; } 
+code span.co { color: #8f5902; font-style: italic; } 
+code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } 
+code span.do { color: #8f5902; font-weight: bold; font-style: italic; } 
+code span.dt { color: #204a87; } 
+code span.dv { color: #0000cf; } 
+code span.er { color: #a40000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #0000cf; } 
+code span.fu { color: #204a87; font-weight: bold; } 
+code span.im { } 
+code span.in { color: #8f5902; font-weight: bold; font-style: italic; } 
+code span.kw { color: #204a87; font-weight: bold; } 
+code span.op { color: #ce5c00; font-weight: bold; } 
+code span.ot { color: #8f5902; } 
+code span.pp { color: #8f5902; font-style: italic; } 
+code span.sc { color: #ce5c00; font-weight: bold; } 
+code span.ss { color: #4e9a06; } 
+code span.st { color: #4e9a06; } 
+code span.va { color: #000000; } 
+code span.vs { color: #4e9a06; } 
+code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
 
 
 
@@ -353,6 +453,116 @@ display: none;
 <div id="you-get-the-idea" class="section level3">
 <h3>you get the idea</h3>
 <p>Here we go. Let’s add some Census Data</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>NY<span class="ot">&lt;-</span><span class="fu">get_acs</span>(<span class="at">geography =</span> <span class="st">&quot;county&quot;</span>, </span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>        <span class="at">variables =</span> <span class="st">&quot;B01001_001&quot;</span>, </span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>        <span class="at">state =</span> <span class="st">&quot;NY&quot;</span>)</span></code></pre></div>
+<p>Let’s load some census data</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>NY_census<span class="ot">&lt;-</span> <span class="fu">get_decennial</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  <span class="at">geography=</span><span class="st">&quot;county&quot;</span>,</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="at">variables=</span><span class="st">&quot;P001001&quot;</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="at">state=</span><span class="st">&quot;NY&quot;</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  <span class="at">year=</span><span class="dv">2010</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>)</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="fu">head</span>(NY_census)</span></code></pre></div>
+<pre><code>## # A tibble: 6 × 4
+##   GEOID NAME                        variable  value
+##   &lt;chr&gt; &lt;chr&gt;                       &lt;chr&gt;     &lt;dbl&gt;
+## 1 36037 Genesee County, New York    P001001   60079
+## 2 36039 Greene County, New York     P001001   49221
+## 3 36051 Livingston County, New York P001001   65393
+## 4 36043 Herkimer County, New York   P001001   64519
+## 5 36041 Hamilton County, New York   P001001    4836
+## 6 36045 Jefferson County, New York  P001001  116229</code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>vars<span class="ot">&lt;-</span><span class="fu">load_variables</span>(<span class="dv">2020</span>,<span class="st">&quot;acs5&quot;</span>)</span></code></pre></div>
+<p>explore movers</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>moved<span class="ot">&lt;-</span><span class="fu">get_acs</span>(<span class="at">geography =</span> <span class="st">&quot;county&quot;</span>, </span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>        <span class="at">variables =</span> <span class="fu">c</span>(<span class="at">move_in=</span><span class="st">&quot;B07001_065&quot;</span>, </span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>                      <span class="at">pop=</span><span class="st">&quot;B01003_001&quot;</span>),</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>        <span class="at">state =</span> <span class="st">&quot;PA&quot;</span>,</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>        <span class="at">year=</span><span class="dv">2020</span>,</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>        <span class="at">survey=</span><span class="st">&quot;acs5&quot;</span>,</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>        <span class="at">output =</span> <span class="st">&quot;wide&quot;</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>        )<span class="sc">%&gt;%</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">moved =</span> <span class="fu">round</span>(move_inE<span class="sc">/</span>popE<span class="sc">*</span><span class="dv">100</span>,<span class="dv">2</span>))</span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="fu">head</span>(moved)</span></code></pre></div>
+<pre><code>## # A tibble: 6 × 7
+##   GEOID NAME                         move_inE move_inM   popE  popM moved
+##   &lt;chr&gt; &lt;chr&gt;                           &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1 42001 Adams County, Pennsylvania       2693      427 102627    NA  2.62
+## 2 42007 Beaver County, Pennsylvania      2892      552 164781    NA  1.76
+## 3 42013 Blair County, Pennsylvania       1259      384 122495     3  1.03
+## 4 42019 Butler County, Pennsylvania      2640      428 187798    NA  1.41
+## 5 42025 Carbon County, Pennsylvania      1070      381  63964    NA  1.67
+## 6 42031 Clarion County, Pennsylvania      495      147  38633    NA  1.28</code></pre>
+<p>Which counties in PA have had more than 3% of its population move in
+from out of state?</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>moved_3<span class="ot">&lt;-</span>moved<span class="sc">%&gt;%</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  <span class="fu">filter</span>(moved<span class="sc">&gt;</span><span class="dv">3</span>)<span class="sc">%&gt;%</span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(moved))</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(moved_3,<span class="at">caption=</span><span class="st">&quot;Top 10 Counties for people moving&quot;</span>)</span></code></pre></div>
+<table>
+<caption>Top 10 Counties for people moving</caption>
+<colgroup>
+<col width="8%" />
+<col width="40%" />
+<col width="12%" />
+<col width="12%" />
+<col width="10%" />
+<col width="7%" />
+<col width="8%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">GEOID</th>
+<th align="left">NAME</th>
+<th align="right">move_inE</th>
+<th align="right">move_inM</th>
+<th align="right">popE</th>
+<th align="right">popM</th>
+<th align="right">moved</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">42119</td>
+<td align="left">Union County, Pennsylvania</td>
+<td align="right">3085</td>
+<td align="right">442</td>
+<td align="right">44831</td>
+<td align="right">NA</td>
+<td align="right">6.88</td>
+</tr>
+<tr class="even">
+<td align="left">42103</td>
+<td align="left">Pike County, Pennsylvania</td>
+<td align="right">2809</td>
+<td align="right">544</td>
+<td align="right">55660</td>
+<td align="right">NA</td>
+<td align="right">5.05</td>
+</tr>
+<tr class="odd">
+<td align="left">42027</td>
+<td align="left">Centre County, Pennsylvania</td>
+<td align="right">6621</td>
+<td align="right">921</td>
+<td align="right">162264</td>
+<td align="right">NA</td>
+<td align="right">4.08</td>
+</tr>
+<tr class="even">
+<td align="left">42089</td>
+<td align="left">Monroe County, Pennsylvania</td>
+<td align="right">5788</td>
+<td align="right">1116</td>
+<td align="right">168824</td>
+<td align="right">NA</td>
+<td align="right">3.43</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Bold</strong> and <em>italic</em> text.
+<code>inline code</code></p>
 </div>
 </div>
 </div>
