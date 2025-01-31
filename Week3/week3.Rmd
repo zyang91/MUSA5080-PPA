@@ -1,0 +1,25 @@
+---
+title: "Week 3: Warm-Up with TidyCensus!"
+author: "Zhanchao Yang"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    theme: "flatly"
+    highlight: tango
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(tidycensus)
+```
+
+# Introduction
+## sub-heading!
+### you get the idea
+
+Here we go. Let's add some Census Data
+```{r start with data}
+
+```
+
