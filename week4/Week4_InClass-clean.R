@@ -171,14 +171,27 @@ agg_aw$value
 #How many of these high points does the Canterbury region contain?
 #Hint: find canterbury and then find how many points (from nz_height) intersect canterbury
 
+st_intersects(nz_height, canterbury, sparse = FALSE) %>% sum()
+# Answer: 70
+
 
 #Which region has the second highest number of nz_height points, and how many does it have?
 #go for the spatial join and group-by approach! 
+highest2<- st_join(nz, nz_height) %>%
+  group_by(Name) %>%
+  summarize(n = n()) %>%
+  arrange(desc(n)) %>%
+  slice(2)
+
+# Answer: West Coast, with 22 points
 
 #calculate the distance between the centroid of colorado and the centroid of PA?
 #How does this differ if we don't calculate centroid and just use distance on the polygons?
 #there is a data layer called us_states you can use from the loaded sp_data package
-
+us_states = us_states
+pa<- us_states %>% filter(NAME=="Pennsylvania")
+CO<- us_states %>% filter(NAME=="Colorado")
+st_distance(st_centroid(pa), st_centroid(CO))
 
 ### Moving onward!
 ##More geometric operations
