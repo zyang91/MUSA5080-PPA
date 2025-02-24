@@ -63,6 +63,3 @@ knitr::kable(moved_3,caption="Top 10 Counties for people moving")
 
 **Bold** and *italic* text.
 `inline code`
-
-
-

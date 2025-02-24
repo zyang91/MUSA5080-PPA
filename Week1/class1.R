@@ -41,4 +41,3 @@ census2020<-census_select %>%
 census_2000<-read.csv("LTDB_Std_2000_fullcount.csv")
 
 census_joined<- left_join(census2020, census_2000, by=c("TRTID2010"="TRTID10"))
-

@@ -267,4 +267,3 @@ cv.error.10
 Notice that the computation time is shorter than that of LOOCV.We still see little evidence that using cubic or higher-order polynomial terms leads to lower test error than simply using a quadratic fit.
 
 The end of Part 1 for week 7. Now we will turn to an intro spatial machine learning and the hedonic, house price model.
-

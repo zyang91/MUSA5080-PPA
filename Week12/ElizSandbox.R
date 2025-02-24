@@ -256,4 +256,3 @@ model <- cv.glmnet(sparse_words, is_cluster,
 coefs <- model$glmnet.fit %>%
   tidy() %>%
   filter(lambda == model$lambda.min)
-
