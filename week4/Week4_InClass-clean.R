@@ -517,5 +517,3 @@ ggplot(zctas) +
   labs(title = "Estimated Population by ZIP Code (ZCTA) in Pennsylvania",
        fill = "Population") +
   theme_minimal()
-
-

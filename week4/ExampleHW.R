@@ -72,4 +72,3 @@ ggplot(block_groups) +
   labs(title = "Neighborhood Risk Categorization (Demolitions & Food Access)",
        fill = "Risk Level") +
   theme_void()
-
