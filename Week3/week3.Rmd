@@ -2,7 +2,7 @@
 title: "Week 3: Warm-Up with TidyCensus!"
 author: "Zhanchao Yang"
 date: "`r Sys.Date()`"
-output: 
+output:
   html_document:
     theme: "flatly"
     highlight: tango
@@ -21,8 +21,8 @@ library(knitr)
 
 Here we go. Let's add some Census Data
 ```{r start with data,warning=FALSE, message=FALSE}
-NY<-get_acs(geography = "county", 
-        variables = "B01001_001", 
+NY<-get_acs(geography = "county",
+        variables = "B01001_001",
         state = "NY")
 ```
 
@@ -42,8 +42,8 @@ vars<-load_variables(2020,"acs5")
 
 explore movers
 ```{r get movers, warning=FALSE, message=FALSE}
-moved<-get_acs(geography = "county", 
-        variables = c(move_in="B07001_065", 
+moved<-get_acs(geography = "county",
+        variables = c(move_in="B07001_065",
                       pop="B01003_001"),
         state = "PA",
         year=2020,

@@ -48,7 +48,7 @@ The in-class exercise at the end encourages students to modify the existing code
 
 ```{r read_data}
 
-# nhoods <- 
+# nhoods <-
 #   st_read("https://github.com/ECDelmelle/MUSA5080_Spring24/blob/main/Week7/BPDA_Neighborhood_Boundaries.geojson") %>%
 #   st_transform('ESRI:102286')
 
@@ -57,11 +57,11 @@ The in-class exercise at the end encourages students to modify the existing code
 nhoods <- st_read("~/Documents/MUSA508_Spring24/Week7/BPDA_Neighborhood_Boundaries.geojson")%>%
   st_transform('ESRI:102286')
 
-boston <- 
+boston <-
   read.csv(file.path(root.dir,"/Chapter3_4/bostonHousePriceData_clean.csv"))
 
-boston.sf <- 
-  boston %>% 
+boston.sf <-
+  boston %>%
   st_as_sf(coords = c("Longitude", "Latitude"), crs = 4326, agr = "constant") %>%
   st_transform('ESRI:102286')
 
@@ -75,7 +75,7 @@ bostonCrimes <- read.csv(file.path(root.dir,"/Chapter3_4/bostonCrimes.csv"))
 ```{r EDA}
 
 # finding counts by group
-bostonCrimes %>% 
+bostonCrimes %>%
 group_by(OFFENSE_CODE_GROUP) %>%
   summarize(count = n()) %>%
   arrange(-count) %>% top_n(10) %>%
@@ -83,7 +83,7 @@ group_by(OFFENSE_CODE_GROUP) %>%
   kable_styling()
 ```
 
-### Mapping 
+### Mapping
 
 See if you can alter the size of the image output. Search for adjusting figure height and width for a rmarkdown block
 
@@ -93,7 +93,7 @@ boston.sf$quintiles <- ntile(boston.sf$PricePerSq, 5)
 # Mapping data
 ggplot() +
   geom_sf(data = nhoods, fill = "lightgrey", col = "white") +
-  geom_sf(data = boston.sf, aes(colour = q5(PricePerSq)), 
+  geom_sf(data = boston.sf, aes(colour = q5(PricePerSq)),
           show.legend = "point", size = .75) +
   scale_colour_manual(values = palette5,
                    labels=qBr(boston,"PricePerSq"),
@@ -115,10 +115,10 @@ boston.sf$quintiles <- ntile(boston.sf$PricePerSq, 5)
 # Create the plot
 ggplot() +
   geom_sf(data = nhoods, fill = "grey40") +
-  geom_sf(data = boston.sf, aes(fill = as.factor(quintiles)), 
+  geom_sf(data = boston.sf, aes(fill = as.factor(quintiles)),
           show.legend = "point", size = 0.75) +
-  scale_fill_manual(values = palette5, 
-                    labels = paste("Quintile", 1:5), 
+  scale_fill_manual(values = palette5,
+                    labels = paste("Quintile", 1:5),
                     name = "Price Per Square Foot") +
   labs(title = "Price Per Square Foot, Boston") +
   theme_void()
@@ -149,19 +149,19 @@ bostonCrimes.sf <-
 ### Create Nearest Spatial Features
 This is where we do two important things:
 
-*   aggregate values within a buffer, and 
-*   create  `nearest neighbor` features. 
+*   aggregate values within a buffer, and
+*   create  `nearest neighbor` features.
 
-These are primary tools we use to add the local spatial signal to each of the points/rows/observations we are modeling. 
+These are primary tools we use to add the local spatial signal to each of the points/rows/observations we are modeling.
 
 #### Buffer aggregate
 
-The first code in this block buffers each point in `boston.sf` by `660` ft and then uses `aggregate` to count the number of `bostonCrimes.sf` points within that buffer. There is a nested call to `mutate` to assign a value of `1` for each `bostonCrimes.sf` as under a column called `counter`. This allows each crime to have the same weight in when the `sun` function is called, but other weighting schemes could be used. Finally, the code `pull` pulls the aggregate values so they can be assigned as the `crimes.Buffer` column to `boston.sf`. This is a little different from how you had assigned new columns before (usually using `mutate`), but valid. Your new feature `crimes.Buffer` is a count of all the crimes within 660ft of each reported crime.  
+The first code in this block buffers each point in `boston.sf` by `660` ft and then uses `aggregate` to count the number of `bostonCrimes.sf` points within that buffer. There is a nested call to `mutate` to assign a value of `1` for each `bostonCrimes.sf` as under a column called `counter`. This allows each crime to have the same weight in when the `sun` function is called, but other weighting schemes could be used. Finally, the code `pull` pulls the aggregate values so they can be assigned as the `crimes.Buffer` column to `boston.sf`. This is a little different from how you had assigned new columns before (usually using `mutate`), but valid. Your new feature `crimes.Buffer` is a count of all the crimes within 660ft of each reported crime.
 
 
 #### k nearest neighbor (knn)
 
-The second block of code is using knn for averaging or summing values of a set number of (referred to as `k`) the nearest observations to each observation; it's *nearest neighbors*. With this, the model can understand the magnitude of values that are *near* each point. This adds a spatial signal to the model. 
+The second block of code is using knn for averaging or summing values of a set number of (referred to as `k`) the nearest observations to each observation; it's *nearest neighbors*. With this, the model can understand the magnitude of values that are *near* each point. This adds a spatial signal to the model.
 
 <!-- The function `nn_function()` takes two pairs of **coordinates** form two `sf` **point** objects. You will see the use of `st_c()` which is just a shorthand way to get the coordinates with the `st_coordinates()` function. You can see where `st_c()` is created. Using `st_c()` within `mutate` converts the points to longitude/latitude coordinate pairs for the `nn_function()` to work with. If you put *polygon* features in there, it will error. Instead you can use `st_c(st_centroid(YourPolygonSfObject))` to get nearest neighbors to a polygon centroid. -->
 
@@ -170,30 +170,30 @@ The number `k` in the `nn_function()` function is the number of neighbors to to 
 ```{r Features}
 
 # Counts of crime per buffer of house sale
-boston.sf$crimes.Buffer <- boston.sf %>% 
-    st_buffer(660) %>% 
+boston.sf$crimes.Buffer <- boston.sf %>%
+    st_buffer(660) %>%
     aggregate(mutate(bostonCrimes.sf, counter = 1),., sum) %>%
     pull(counter)
 
 ## Nearest Neighbor Feature
 
 boston.sf <-
-  boston.sf %>% 
+  boston.sf %>%
     mutate(
-      crime_nn1 = nn_function(st_coordinates(boston.sf), 
+      crime_nn1 = nn_function(st_coordinates(boston.sf),
                               st_coordinates(bostonCrimes.sf), k = 1),
-      
-      crime_nn2 = nn_function(st_coordinates(boston.sf), 
-                              st_coordinates(bostonCrimes.sf), k = 2), 
-      
-      crime_nn3 = nn_function(st_coordinates(boston.sf), 
-                              st_coordinates(bostonCrimes.sf), k = 3), 
-      
-      crime_nn4 = nn_function(st_coordinates(boston.sf), 
-                              st_coordinates(bostonCrimes.sf), k = 4), 
-      
-      crime_nn5 = nn_function(st_coordinates(boston.sf), 
-                              st_coordinates(bostonCrimes.sf), k = 5)) 
+
+      crime_nn2 = nn_function(st_coordinates(boston.sf),
+                              st_coordinates(bostonCrimes.sf), k = 2),
+
+      crime_nn3 = nn_function(st_coordinates(boston.sf),
+                              st_coordinates(bostonCrimes.sf), k = 3),
+
+      crime_nn4 = nn_function(st_coordinates(boston.sf),
+                              st_coordinates(bostonCrimes.sf), k = 4),
+
+      crime_nn5 = nn_function(st_coordinates(boston.sf),
+                              st_coordinates(bostonCrimes.sf), k = 5))
 ```
 
 Let's create a density map of the crime points.
@@ -202,8 +202,8 @@ Let's create a density map of the crime points.
 
 # Create the plot with adjusted plot extent
 ggplot() +
-  stat_density_2d(data = data.frame(st_coordinates(bostonCrimes.sf)), 
-                 aes(x = X, y = Y, fill = after_stat(level)), 
+  stat_density_2d(data = data.frame(st_coordinates(bostonCrimes.sf)),
+                 aes(x = X, y = Y, fill = after_stat(level)),
                  size = 0.1, bins = 20, geom = "polygon") +  # Add 2D density plot
   geom_sf(data = nhoods, fill = "transparent", color = "black") +  # Add neighborhood boundaries
 scale_fill_gradient(low = "#FFEDA0", high = "#800026", name = "Density", na.value = "grey40", labels = scales::number_format(scale = 1e3)) +  # Color gradient for density
@@ -227,13 +227,13 @@ Can you give me a one-sentence description of what the takeaway is?
 
 ```{r Correlation}
 # Remove geometry column (if present), calculate Age, and select relevant variables
-boston_cleaned <- st_drop_geometry(boston.sf) %>% 
+boston_cleaned <- st_drop_geometry(boston.sf) %>%
   mutate(Age = 2015 - YR_BUILT) %>%        # Calculate Age based on the year built
   dplyr::select(SalePrice, LivingArea, Age, GROSS_AREA) %>%  # Select relevant variables
   filter(SalePrice <= 1000000, Age < 500)  # Filter data based on conditions
 
-# Reshape data from wide to long format. This is for mapping purposes below. 
-boston_long <- gather(boston_cleaned, Variable, Value, -SalePrice) 
+# Reshape data from wide to long format. This is for mapping purposes below.
+boston_long <- gather(boston_cleaned, Variable, Value, -SalePrice)
 
 # Create scatterplot with linear regression lines for each variable
 ggplot(boston_long, aes(Value, SalePrice)) +   # Set up the plot
@@ -299,8 +299,8 @@ labs(title = "Correlation across numeric variables")  # Set plot title
 
 
 # yet another way to plot the correlation plot using the corrr library
-numericVars %>% 
-  correlate() %>% 
+numericVars %>%
+  correlate() %>%
   autoplot() +
   geom_text(aes(label = round(r,digits=2)),size = 2)
 
@@ -317,18 +317,18 @@ Pearson's r Learning links:
 Note: the use of the `ggscatter()` function from the `ggpubr` package to plot the *Pearson's rho* or *Pearson's r* statistic; the Correlation Coefficient. This number can also be squared and represented as `r2`. However, this differs from the `R^2` or `R2` or "R-squared" of a linear model fit, known as the Coefficient of Determination. This is explained a bit more below.
 
 ```{r uni_variate_Regression}
-boston_sub_200k <- st_drop_geometry(boston.sf) %>% 
-filter(SalePrice <= 2000000) 
+boston_sub_200k <- st_drop_geometry(boston.sf) %>%
+filter(SalePrice <= 2000000)
 
 cor.test(boston_sub_200k$LivingArea,
-         boston_sub_200k$SalePrice, 
+         boston_sub_200k$SalePrice,
          method = "pearson")
 
 ggscatter(boston_sub_200k,
           x = "LivingArea",
           y = "SalePrice",
           add = "reg.line") +
-  stat_cor(label.y = 2500000) 
+  stat_cor(label.y = 2500000)
 
 ```
 
@@ -345,7 +345,7 @@ The Pearson's rho - Correlation Coefficient and the R2 Coefficient of Determinat
 
 ### R2 - Coefficient of Determination
 
-Discussed above, the `R^2` or "R-squared" is a common way to validate the predictions of a linear model. Below we run a linear model on our data with the `lm()` function and get the output in our R terminal. At first this is an intimidating amount of information! Here is a [great resource](https://towardsdatascience.com/understanding-linear-regression-output-in-r-7a9cbda948b3) to understand how that output is organized and what it means.  
+Discussed above, the `R^2` or "R-squared" is a common way to validate the predictions of a linear model. Below we run a linear model on our data with the `lm()` function and get the output in our R terminal. At first this is an intimidating amount of information! Here is a [great resource](https://towardsdatascience.com/understanding-linear-regression-output-in-r-7a9cbda948b3) to understand how that output is organized and what it means.
 
 What we are focusing on here is that `R-squared`,  `Adjusted R-squared` and the `Coefficients`.
 
@@ -413,10 +413,10 @@ What's up with these categorical variables?
 Better R-squared - does that mean it's a better model?
 
 ```{r mutlivariate_regression}
-reg1 <- lm(SalePrice ~ ., data = boston_sub_200k %>% 
-                                 dplyr::select(SalePrice, LivingArea,  
+reg1 <- lm(SalePrice ~ ., data = boston_sub_200k %>%
+                                 dplyr::select(SalePrice, LivingArea,
                                                GROSS_AREA, R_TOTAL_RM, NUM_FLOORS,
-                                               R_BDRMS, R_FULL_BTH, R_HALF_BTH, 
+                                               R_BDRMS, R_FULL_BTH, R_HALF_BTH,
                                                R_KITCH, R_AC, R_FPLACE))
 
 summary(reg1)
@@ -489,8 +489,8 @@ print(lm_cv)
 
 
 # Plot observed versus predicted values
-plot(lm_cv$pred$obs, lm_cv$pred$pred, 
-     xlab = "Observed", ylab = "Predicted", 
+plot(lm_cv$pred$obs, lm_cv$pred$pred,
+     xlab = "Observed", ylab = "Predicted",
      main = "Observed vs Predicted Values")
 
 # Add a diagonal line for reference

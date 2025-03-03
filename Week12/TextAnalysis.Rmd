@@ -4,7 +4,7 @@ author: "Elizabeth Delmelle & Isabelle Nilsson"
 date: "2022-10-26"
 output: html_document
 ---
-This lab will follow the general workflow describe in the article: 
+This lab will follow the general workflow describe in the article:
 Delmelle, E. C., & Nilsson, I. (2021). The language of neighborhoods: A predictive-analytical framework based on property advertisement text and mortgage lending data. Computers, Environment and Urban Systems, 88, 101658.
 
 ```{r setup, include=FALSE}
@@ -50,7 +50,7 @@ With our selected variables, the clustering proceeds as follows: First, we scale
 
 For k-means, we need to provide k, or the number of groups that we want to segment our data into. This is kind of a judgement call based on a combination of statistics and local or study area knowledge. Ultimately, the goal of the algorithm is to sort the census tracts into groups that maximizes the difference between all the groups and that minimizes the difference in observations within the groups. We'll explore a few fit and then I'll override them because I know the city best! The computer has never lived there...
 
-The code is a clunky way to test out 4 different solutions (2-5 clusters). The nstart indicates that the algorithm will run with 25 different random initiations. k-means can be sensitive to the initial random solution. It also means we aren't all guaranteed to get the same solution each time or as your neighbor! We can set a random generator seed to alleviate that. 
+The code is a clunky way to test out 4 different solutions (2-5 clusters). The nstart indicates that the algorithm will run with 25 different random initiations. k-means can be sensitive to the initial random solution. It also means we aren't all guaranteed to get the same solution each time or as your neighbor! We can set a random generator seed to alleviate that.
 
 Which cluster solution would you choose?
 
@@ -245,7 +245,7 @@ words_by_neighborhood <- words %>%
   ungroup()
 
 words_by_neighborhood %>%
-  filter(n >= 25) %>% 
+  filter(n >= 25) %>%
   arrange(n) %>%
   group_by(cluster4) %>%
   top_n(25, n) %>%
@@ -255,7 +255,7 @@ words_by_neighborhood %>%
   geom_col(show.legend = FALSE) +
   facet_wrap(~ cluster4, scales = "free", ncol = 3) +
   coord_flip() +
-  labs(x = NULL, 
+  labs(x = NULL,
        y = "Words by Cluster")
 ```
 
@@ -273,7 +273,7 @@ for (i in 1:length(names)) {
   d <- subset(d, n>=5)
   d <- head(d,20)
   d$word <- factor(d$word, levels=d[order(d$n),]$word)
-  p1 <- ggplot(d, aes(x = word, y = n, fill = cluster4)) + 
+  p1 <- ggplot(d, aes(x = word, y = n, fill = cluster4)) +
     labs(y = NULL, x = NULL, fill = NULL) +
     geom_bar(stat = "identity") +
     facet_wrap(~cluster4, scales = "free", labeller = as_labeller(cluster.lab)) +
@@ -285,11 +285,11 @@ for (i in 1:length(names)) {
                         axis.ticks = element_line(size = 0),
                         panel.grid.minor.y = element_blank(),
                         panel.grid.major.y = element_blank() ) +
-    theme(legend.position="bottom") 
-  
-  
+    theme(legend.position="bottom")
+
+
   plist[[names[i]]] = p1
-}   
+}
 
 do.call("grid.arrange", c(plist, ncol=3))
 #dev.off()
@@ -323,21 +323,21 @@ We then split into a testing and training dataset
 
 zillow<-st_drop_geometry(zillow)
 
-zillow$cluster1[zillow$cluster4!=1] <- 0    
-zillow$cluster1[zillow$cluster4==1] <- 1    
-words$cluster1[words$cluster4!=1] <- 0    
+zillow$cluster1[zillow$cluster4!=1] <- 0
+zillow$cluster1[zillow$cluster4==1] <- 1
+words$cluster1[words$cluster4!=1] <- 0
 words$cluster1[words$cluster4==1] <- 1
-zillow$cluster2[zillow$cluster4!=2] <- 0    
-zillow$cluster2[zillow$cluster4==2] <- 1    
-words$cluster2[words$cluster4!=2] <- 0    
+zillow$cluster2[zillow$cluster4!=2] <- 0
+zillow$cluster2[zillow$cluster4==2] <- 1
+words$cluster2[words$cluster4!=2] <- 0
 words$cluster2[words$cluster4==2] <- 1
-zillow$cluster3[zillow$cluster4!=3] <- 0    
-zillow$cluster3[zillow$cluster4==3] <- 1    
-words$cluster3[words$cluster4!=3] <- 0    
+zillow$cluster3[zillow$cluster4!=3] <- 0
+zillow$cluster3[zillow$cluster4==3] <- 1
+words$cluster3[words$cluster4!=3] <- 0
 words$cluster3[words$cluster4==3] <- 1
-zillow$cluster4b[zillow$cluster4!=4] <- 0    
-zillow$cluster4b[zillow$cluster4==4] <- 1    
-words$cluster4b[words$cluster4!=4] <- 0    
+zillow$cluster4b[zillow$cluster4!=4] <- 0
+zillow$cluster4b[zillow$cluster4==4] <- 1
+words$cluster4b[words$cluster4!=4] <- 0
 words$cluster4b[words$cluster4==4] <- 1
 
 
@@ -366,7 +366,7 @@ data_joined <- data_frame(USER_ID = word_rownames) %>%
 
 ```
 
-It is finally time to run the logistic regression. This code will work for one cluster at a time and graph the largest positive and negative words associated with each neighborhood type. Again, we see the importance of specific neighborhood names as most discriminating. To get more interesting keywords, we need to filter out these specific neighborhood names and replace them with a generic placeholder. You'll also notice some odd words that are likely misspellings pop up because they are rare and therefore highly discriminating of one neighborhood type. That's where the iterative cleaning comes into play - the influence of these rare words is also an artifact of having a relatively small sample of real estate listings used in this illustrative example. 
+It is finally time to run the logistic regression. This code will work for one cluster at a time and graph the largest positive and negative words associated with each neighborhood type. Again, we see the importance of specific neighborhood names as most discriminating. To get more interesting keywords, we need to filter out these specific neighborhood names and replace them with a generic placeholder. You'll also notice some odd words that are likely misspellings pop up because they are rare and therefore highly discriminating of one neighborhood type. That's where the iterative cleaning comes into play - the influence of these rare words is also an artifact of having a relatively small sample of real estate listings used in this illustrative example.
 
 We found a handy real estate dictionary that helped us get started in cleaning our much larger dataset that is very expensive and cannot be shared with you! But if you find yourself some money, and want to re-create the analysis on real MLS data check out: https://github.com/browak/Nowak-Price-Smith-JREFE-2019
 We ended up adding to those words with a full list of neighborhood names. I added that file to the github site for reference.
@@ -387,7 +387,7 @@ coefs <- model$glmnet.fit %>%
   tidy() %>%
   filter(lambda == model$lambda.min)
 
-#Plot coefficients 
+#Plot coefficients
 coefs %>%
   group_by(estimate > 0) %>%
   top_n(15, abs(estimate)) %>%
@@ -406,7 +406,7 @@ coefs %>%
 Now we can see how well we can predict the type of neighborhood a listing belongs to based on the coefficients of the words contained in the listing. Remember, since we converted it to a binary problem, we are testing one class at a time. In other words, is the listing in class 1? Yes or no, given what we've learned. We follow with our favorite confusion matrix. In this case, we are much better at predicting it DOESN'T belong to a certain class than identify the true class. Many more True Negatives than True Positives. We could also fiddle around with the 0.8 threshold to see how that alters the prediction results.
 
 ```{r prediction}
-#Prediction 
+#Prediction
 
 intercept <- coefs %>%
   filter(term == "(Intercept)") %>%
@@ -421,8 +421,8 @@ classifications <- words %>%
 
 comment_classes <- classifications %>%
   left_join(zillow %>%
-              select(cluster1, USER_ID), by = "USER_ID") %>% #change here to clusterX 
-  mutate(cluster1 = as.factor(cluster1)) #change here to clusterX 
+              select(cluster1, USER_ID), by = "USER_ID") %>% #change here to clusterX
+  mutate(cluster1 = as.factor(cluster1)) #change here to clusterX
 
 
 
@@ -436,7 +436,7 @@ comment_classes %>%
     ),
     prediction = as.factor(prediction)
   ) %>%
-  conf_mat(cluster1, prediction) #change here to clusterX 
+  conf_mat(cluster1, prediction) #change here to clusterX
 
 #accuracy = TN + TP / tot # of predictions
 #precision = TP / TP + FP

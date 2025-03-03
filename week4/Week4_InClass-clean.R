@@ -2,7 +2,7 @@
 #February 7, 2025
 #Reference: https://r.geocompx.org/
 
-#This is the first part of today's adventure. 
+#This is the first part of today's adventure.
 #Today's goal is to go over core GIS functions in R.
 #If necessary, install the following packages
 install.packages("sf")
@@ -12,8 +12,8 @@ install.packages("spData")
 install.packages("spDataLarge", repos = "https://geocompr.r-universe.dev")
 
 #Load the libraries
-library(sf) 
-library(terra)  
+library(sf)
+library(terra)
 library(dplyr)
 library(spData)        # load geographic data
 library(spDataLarge)   # load larger geographic data
@@ -74,7 +74,7 @@ st_disjoint(nz_height, canterbury, sparse = FALSE)[, 1]
 st_is_within_distance(nz_height, canterbury, dist = 0.2, sparse = FALSE)[, 1]
 
 
-#Distance relationships 
+#Distance relationships
 #find distance between highest point and centroid of canterbury
 #returns a matrix
 nz_highest = nz_height %>% slice_max(n = 1, order_by = elevation)
@@ -115,7 +115,7 @@ random_joined = st_join(random_points, world["name_long"])
 #set left = FALSE to override the default left join
 # the default spatial operation is st_intersects
 
-#Now we can do a distance-based join. 
+#Now we can do a distance-based join.
 #Here we can see that these two cycle hire datasets are close, but not exactly on top of each other.
 plot(st_geometry(cycle_hire), col = "blue")
 plot(st_geometry(cycle_hire_osm), add = TRUE, pch = 3, col = "red")
@@ -126,19 +126,19 @@ any(st_intersects(cycle_hire, cycle_hire_osm, sparse = FALSE))
 # We want to join the capacity variable in cycle_hire_osm onto the 'official' target data in cycle_hire.
 
 # How many are within 20 m of each other?
-sel = st_is_within_distance(cycle_hire, cycle_hire_osm, 
+sel = st_is_within_distance(cycle_hire, cycle_hire_osm,
                             dist = units::set_units(20, "m"))
 summary(lengths(sel) > 0)
 
 # now we will assign them the values using st_join:
-z = st_join(cycle_hire, cycle_hire_osm, st_is_within_distance, 
+z = st_join(cycle_hire, cycle_hire_osm, st_is_within_distance,
             dist = units::set_units(20, "m"))
 nrow(cycle_hire)
 
 nrow(z)
 
 #too many! What happend?
-# some cycle_hire stations have multiple matches in the osm layer. 
+# some cycle_hire stations have multiple matches in the osm layer.
 # one solution is to aggregate values for overlapping points and return the mean.
 z = z %>%
   group_by(id) %>%
@@ -156,7 +156,7 @@ nz_agg2 = st_join(x = nz, y = nz_height)  %>%
   summarize(elevation = mean(elevation, na.rm = TRUE))
 
 
-#incongruent overlay using areal weighted interpoltaion, 
+#incongruent overlay using areal weighted interpoltaion,
 # when the boundary line across different geographies not matches.
 # Interpolation based on areas of overlap
 iv = incongruent["value"] # keep only the values to be transferred
@@ -167,7 +167,7 @@ agg_aw$value
 # set extensive = FALSE when dealing with percents
 
 ## OK your turn to try some challenges
-# Canterbury was the region of New Zealand containing most of the 101 highest points in the country. 
+# Canterbury was the region of New Zealand containing most of the 101 highest points in the country.
 #How many of these high points does the Canterbury region contain?
 #Hint: find canterbury and then find how many points (from nz_height) intersect canterbury
 
@@ -176,7 +176,7 @@ st_intersects(nz_height, canterbury, sparse = FALSE) %>% sum()
 
 
 #Which region has the second highest number of nz_height points, and how many does it have?
-#go for the spatial join and group-by approach! 
+#go for the spatial join and group-by approach!
 highest2<- st_join(nz, nz_height) %>%
   group_by(Name) %>%
   summarize(n = n()) %>%
@@ -240,7 +240,7 @@ london_geo = st_set_crs(london, "EPSG:4326")
 st_is_longlat(london_geo)
 
 #let's buffer london in lat/long
-london_buff_lonlat = st_buffer(london_geo, dist = 1) 
+london_buff_lonlat = st_buffer(london_geo, dist = 1)
 sf::sf_use_s2(TRUE)
 plot(london_buff_lonlat)
 
@@ -293,33 +293,33 @@ us_median_age <- get_acs(
 plot(us_median_age$geometry)
 
 # a very basic ggplot map. following the same forumula we used for a plot, but we will use 'geom_sf' to make it a map
-ggplot(data = us_median_age, aes(fill = estimate)) + 
+ggplot(data = us_median_age, aes(fill = estimate)) +
   geom_sf()
 
 #move beyond the default
-ggplot(data = us_median_age, aes(fill = estimate)) + 
-  geom_sf() + 
-  scale_fill_distiller(palette = "RdPu", 
-                       direction = 1) + 
+ggplot(data = us_median_age, aes(fill = estimate)) +
+  geom_sf() +
+  scale_fill_distiller(palette = "RdPu",
+                       direction = 1) +
   labs(title = "  Median Age by State, 2019",
        caption = "Data source: 2019 1-year ACS, US Census Bureau",
-       fill = "ACS estimate") + 
+       fill = "ACS estimate") +
   theme_void()
 
 ## What happens if you don't have direction = 1?
 
 ## Ok - let's run through a few more workflows that integrates what we've learned so far.
 # Repetition = knowledge gained.
-#From Tidycensus book 
+#From Tidycensus book
 
 #first, get census tracts for both states in Kanasas City (go Birds! Boo Chiefs!)
 #re-project from NAD83 to KC regional coordinate system
-# CRS used: NAD83(2011) Kansas Regional Coordinate System 
+# CRS used: NAD83(2011) Kansas Regional Coordinate System
 # Zone 11 (for Kansas City)
 ks_mo_tracts <- map_dfr(c("KS", "MO"), ~{
   tracts(.x, cb = TRUE, year = 2020)
 }) %>%
-  st_transform(8528)  
+  st_transform(8528)
 
 #now get KC boundary
 kc_metro <- core_based_statistical_areas(cb = TRUE, year = 2020) %>%
@@ -327,28 +327,28 @@ kc_metro <- core_based_statistical_areas(cb = TRUE, year = 2020) %>%
   st_transform(8528)
 
 #plot them both
-ggplot() + 
-  geom_sf(data = ks_mo_tracts, fill = "white", color = "grey") + 
-  geom_sf(data = kc_metro, fill = NA, color = "red") + 
+ggplot() +
+  geom_sf(data = ks_mo_tracts, fill = "white", color = "grey") +
+  geom_sf(data = kc_metro, fill = NA, color = "red") +
   theme_void()
 #Practice subsetting using the intersection command we learned:
 kc_tracts <- ks_mo_tracts[kc_metro, ]
 
-ggplot() + 
-  geom_sf(data = kc_tracts, fill = "white", color = "grey") + 
-  geom_sf(data = kc_metro, fill = NA, color = "red") + 
+ggplot() +
+  geom_sf(data = kc_tracts, fill = "white", color = "grey") +
+  geom_sf(data = kc_metro, fill = NA, color = "red") +
   theme_void()
 
 # just get those that fall WITHIN, excluding those that touch the boundary. Two approaches
 kc_tracts_within <- ks_mo_tracts %>%
   st_filter(kc_metro, .predicate = st_within)
 
-# Equivalent syntax: 
+# Equivalent syntax:
 # kc_metro2 <- kc_tracts[kc_metro, op = st_within]
 
-ggplot() + 
-  geom_sf(data = kc_tracts_within, fill = "white", color = "grey") + 
-  geom_sf(data = kc_metro, fill = NA, color = "red") + 
+ggplot() +
+  geom_sf(data = kc_tracts_within, fill = "white", color = "grey") +
+  geom_sf(data = kc_metro, fill = NA, color = "red") +
   theme_void()
 
 
@@ -357,11 +357,11 @@ library(mapview)
 
 gainesville_patients <- tibble(
   patient_id = 1:10,
-  longitude = c(-82.308131, -82.311972, -82.361748, -82.374377, 
-                -82.38177, -82.259461, -82.367436, -82.404031, 
+  longitude = c(-82.308131, -82.311972, -82.361748, -82.374377,
+                -82.38177, -82.259461, -82.367436, -82.404031,
                 -82.43289, -82.461844),
-  latitude = c(29.645933, 29.655195, 29.621759, 29.653576, 
-               29.677201, 29.674923, 29.71099, 29.711587, 
+  latitude = c(29.645933, 29.655195, 29.621759, 29.653576,
+               29.677201, 29.674923, 29.71099, 29.711587,
                29.648227, 29.624037)
 )
 #make it an sf
@@ -372,7 +372,7 @@ gainesville_sf <- gainesville_patients %>%
   st_transform(6440)
 
 mapview(
-  gainesville_sf, 
+  gainesville_sf,
   col.regions = "red",
   legend = FALSE
 )
@@ -386,16 +386,16 @@ alachua_insurance <- get_acs(
   year = 2019,
   geometry = TRUE
 ) %>%
-  select(GEOID, pct_insured = estimate, 
+  select(GEOID, pct_insured = estimate,
          pct_insured_moe = moe) %>%
   st_transform(6440)
 
 #make a map
 mapview(
   alachua_insurance,
-  zcol = "pct_insured", 
+  zcol = "pct_insured",
   layer.name = "% with health<br/>insurance"
-) + 
+) +
   mapview(
     gainesville_sf,
     col.regions = "red",
@@ -443,17 +443,17 @@ hispanic_by_metro <- st_join(
   join = st_within,
   suffix = c("_tracts", "_metro"),
   left = FALSE
-) 
+)
 
 
 #cool. let's make a faceted plot to compare census tracts within each of the 4 cbsa
 hispanic_by_metro %>%
   mutate(NAME_metro = str_replace(NAME_metro, ", TX Metro Area", "")) %>%
-  ggplot() + 
-  geom_density(aes(x = estimate_tracts), color = "navy", fill = "navy", 
-               alpha = 0.4) + 
-  theme_minimal() + 
-  facet_wrap(~NAME_metro) + 
+  ggplot() +
+  geom_density(aes(x = estimate_tracts), color = "navy", fill = "navy",
+               alpha = 0.4) +
+  theme_minimal() +
+  facet_wrap(~NAME_metro) +
   labs(title = "Distribution of Hispanic/Latino population by Census tract",
        subtitle = "Largest metropolitan areas in Texas",
        y = "Kernel density estimate",
@@ -462,7 +462,7 @@ hispanic_by_metro %>%
 
 ##ok your turn, re-create this last analysis with the CBSA for the top 2 CBSA in PA and get PA census tracts (any variable you want. use load_variables to find one that interests you)
 # spatially overlay them. create the facet map
-#also, use ggplot to make a map of your variable for one of the CBSA. 
+#also, use ggplot to make a map of your variable for one of the CBSA.
 # you can work with a friend!
 
 

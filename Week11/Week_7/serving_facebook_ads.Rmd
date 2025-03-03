@@ -60,7 +60,7 @@ options(scipen=10000000)
 library(tidyverse)
 library(kableExtra)
 library(caret)
-library(knitr) 
+library(knitr)
 library(pscl)
 library(plotROC)
 library(pROC)
@@ -93,11 +93,11 @@ Make some plots of our variables - both continuous and categorical. Examine thes
 advertising %>%
   dplyr::select(click,Area_Income, Time_On_FB, Daily_Internet_Usage, Age) %>%
   gather(Variable, value, -click) %>%
-    ggplot(aes(click, value, fill=click)) + 
-      geom_bar(position = "dodge", stat = "summary", fun = "mean") + 
+    ggplot(aes(click, value, fill=click)) +
+      geom_bar(position = "dodge", stat = "summary", fun = "mean") +
       facet_wrap(~Variable, scales = "free") +
       scale_fill_manual(values = palette2) +
-      labs(x="Click", y="Value", 
+      labs(x="Click", y="Value",
            title = "Feature associations with the likelihood of click",
            subtitle = "(continous outcomes)") +
       theme(legend.position = "none")
@@ -107,8 +107,8 @@ advertising %>%
 advertising %>%
     dplyr::select(click,Area_Income, Time_On_FB, Daily_Internet_Usage, Age) %>%
     gather(Variable, value, -click) %>%
-    ggplot() + 
-    geom_density(aes(value, color=click), fill = "transparent") + 
+    ggplot() +
+    geom_density(aes(value, color=click), fill = "transparent") +
     facet_wrap(~Variable, scales = "free") +
     scale_fill_manual(values = palette2) +
     labs(title = "Feature distributions click vs. no click",
@@ -120,7 +120,7 @@ advertising %>%
     dplyr::select(click, Male, Fashion_FB_Group) %>%
     gather(Variable, value, -click) %>%
     count(Variable, value, click) %>%
-      ggplot(., aes(value, n, fill = click)) +   
+      ggplot(., aes(value, n, fill = click)) +
         geom_bar(position = "dodge", stat="identity") +
         facet_wrap(~Variable, scales="free") +
         scale_fill_manual(values = palette2) +
@@ -138,11 +138,11 @@ I also create a `userTimeFrame` variable to see if the time of day the user is v
 
 ```{r country_variables, cache = TRUE}
 
-advertising <- 
-  advertising %>% 
-  group_by(Country) %>% 
-  summarize(totClicks = sum(clickNumeric), 
-            n = n(), 
+advertising <-
+  advertising %>%
+  group_by(Country) %>%
+  summarize(totClicks = sum(clickNumeric),
+            n = n(),
             nationalClickAvg = 100*(totClicks/n)) %>%
   dplyr::select(-n, -totClicks) %>%
   right_join(advertising, .) %>%
@@ -175,7 +175,7 @@ We run our model with the dependent variable `clickNumeric` and we use most of o
 ```{r run_model}
 
 advertisingModel <- glm(clickNumeric ~ .,
-                  data=advertisingTrain %>% 
+                  data=advertisingTrain %>%
                     dplyr::select(-Country, -Timestamp, -userTimeFrame, -click),
                   family="binomial" (link="logit"))
 
@@ -222,7 +222,7 @@ testProbs <- data.frame(Outcome = as.factor(advertisingTest$clickNumeric),
 Look at the plot of our predicted probabilities for our observed clickers (`1`) and non-clickers (`0`). **Write a sentence or two about how you think our model is performing.**
 
 ```{r plot_testProbs}
-ggplot(testProbs, aes(x = Probs, fill = as.factor(Outcome))) + 
+ggplot(testProbs, aes(x = Probs, fill = as.factor(Outcome))) +
   geom_density() +
   facet_grid(Outcome ~ .) +
   scale_fill_manual(values = palette2) +
@@ -239,13 +239,13 @@ Each threshold (e.g. a probability above which a prediction is a "click" and bel
 A "confusion matrix" for the threshold of 50% shows us the rate at which we got True Positives (aka Sensitivity), False Positives, True Negatives (aka Specificity) and False Negatives for that threshold.
 
 ```{r thresholds}
-testProbs <- 
+testProbs <-
   testProbs %>%
   mutate(predOutcome  = as.factor(ifelse(testProbs$Probs > 0.5 , 1, 0)))
 ```
 
 ```{r confusion_matrix}
-caret::confusionMatrix(testProbs$predOutcome, testProbs$Outcome, 
+caret::confusionMatrix(testProbs$predOutcome, testProbs$Outcome,
                        positive = "1")
 
 ```
@@ -294,9 +294,9 @@ Probably pretty, pretty good.
 ctrl <- trainControl(method = "cv", number = 100, classProbs=TRUE, summaryFunction=twoClassSummary)
 
 cvFit <- train(click ~ .,
-                  data=advertising %>% 
-                    dplyr::select(-Country, -Timestamp, -clickNumeric, 
-                                  -userTimeFrame, -Fashion_FB_Group), 
+                  data=advertising %>%
+                    dplyr::select(-Country, -Timestamp, -clickNumeric,
+                                  -userTimeFrame, -Fashion_FB_Group),
                 method="glm", family="binomial",
                 metric="ROC", trControl = ctrl)
 
@@ -307,7 +307,7 @@ cvFit
 dplyr::select(cvFit$resample, -Resample) %>%
   gather(metric, value) %>%
   left_join(gather(cvFit$results[2:4], metric, mean)) %>%
-  ggplot(aes(value)) + 
+  ggplot(aes(value)) +
     geom_histogram(bins=35, fill = "#FF006A") +
     facet_wrap(~metric) +
     geom_vline(aes(xintercept = mean), colour = "#981FAC", linetype = 3, size = 1.5) +
@@ -374,7 +374,7 @@ iterateThresholds <- function(data) {
   x = .01
   all_prediction <- data.frame()
   while (x <= 1) {
-  
+
   this_prediction <-
       testProbs %>%
       mutate(predOutcome = ifelse(Probs > x, 1, 0)) %>%
@@ -390,7 +390,7 @@ iterateThresholds <- function(data) {
                ifelse(Variable == "False_Negative", (-0.35) * Count,
                ifelse(Variable == "False_Positive", (-0.1) * Count, 0)))),
             Threshold = x)
-  
+
   all_prediction <- rbind(all_prediction, this_prediction)
   x <- x + .01
   }
@@ -401,9 +401,9 @@ return(all_prediction)
 ```{r revenue_model}
 whichThreshold <- iterateThresholds(testProbs2)
 
-whichThreshold_revenue <- 
-whichThreshold %>% 
-    group_by(Threshold) %>% 
+whichThreshold_revenue <-
+whichThreshold %>%
+    group_by(Threshold) %>%
     summarize(Revenue = sum(Revenue))
 
   ggplot(whichThreshold_revenue)+

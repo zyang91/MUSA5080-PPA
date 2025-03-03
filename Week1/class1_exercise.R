@@ -70,7 +70,7 @@ census2020_groupby<-census2020 %>%
   summarize(mean_pop=mean(pop20,na.rm=TRUE))
 
 #official solution
-#summary_table<-census%>% mutate(stateID=substr(TRTID2010,1,2))%>% 
+#summary_table<-census%>% mutate(stateID=substr(TRTID2010,1,2))%>%
 #  group_by(stateID)%>% summarize(mean_pop=mean(pop20,na.rm=TRUE))
 
 

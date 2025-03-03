@@ -5,10 +5,10 @@ cltdata<- inner_join(clt_tracts, hmda, by = c("name10" = "tract"))
 
 ##just choose the variables we will use
 
-cltdata %>% dplyr::select( c("name10","Black18","White18","Hispanic18","med_income2018","chblack","chwhite","chincome","chhisp","minor_pop_pct", "minor_pop_pct")) 
+cltdata %>% dplyr::select( c("name10","Black18","White18","Hispanic18","med_income2018","chblack","chwhite","chincome","chhisp","minor_pop_pct", "minor_pop_pct"))
 cltdata <- st_drop_geometry(cltdata)
 
-cltdata <- cltdata %>% mutate_if(is.character,as.numeric)%>% dplyr::select( c("name10","Black18","White18","Hispanic18","med_income2018","chblack","chwhite","chincome","chhisp","minor_pop_pct", "minor_pop_pct")) 
+cltdata <- cltdata %>% mutate_if(is.character,as.numeric)%>% dplyr::select( c("name10","Black18","White18","Hispanic18","med_income2018","chblack","chwhite","chincome","chhisp","minor_pop_pct", "minor_pop_pct"))
 cltdata<- na.omit(cltdata)
 data_scaled<- scale(cltdata[2:10])
 
@@ -35,7 +35,7 @@ df<- data_scaled
 
 set.seed(123)
 
-# function to compute total within-cluster sum of square 
+# function to compute total within-cluster sum of square
 wss <- function(k) {
   kmeans(df, k, nstart = 10 )$tot.withinss
 }
@@ -47,7 +47,7 @@ k.values <- 1:15
 wss_values <- map_dbl(k.values, wss)
 
 plot(k.values, wss_values,
-     type="b", pch = 19, frame = FALSE, 
+     type="b", pch = 19, frame = FALSE,
      xlab="Number of clusters K",
      ylab="Total within-clusters sum of squares")
 
@@ -71,7 +71,7 @@ k.values <- 2:15
 avg_sil_values <- map_dbl(k.values, avg_sil)
 
 plot(k.values, avg_sil_values,
-     type = "b", pch = 19, frame = FALSE, 
+     type = "b", pch = 19, frame = FALSE,
      xlab = "Number of clusters K",
      ylab = "Average Silhouettes")
 
@@ -125,7 +125,7 @@ words_by_neighborhood <- words %>%
 cluster.lab <- c('1'= "White-Higher-Income", '2'="White Homebuyers-Minority Neighborhoods", '3'= "Increasing Black-Minority Neighborhoods", '4'= "White-Increasingly High Income", '5'="Hispanic Homebuyers-Minority Neighborhoods")
 
 words_by_neighborhood %>%
-  filter(n >= 25) %>% 
+  filter(n >= 25) %>%
   arrange(n) %>%
   group_by(cluster5) %>%
   top_n(25, n) %>%
@@ -135,7 +135,7 @@ words_by_neighborhood %>%
   geom_col(show.legend = FALSE) +
   facet_wrap(~ cluster5, scales = "free", ncol = 3) +
   coord_flip() +
-  labs(x = NULL, 
+  labs(x = NULL,
        y = "Words by Cluster")
 
 
@@ -153,7 +153,7 @@ for (i in 1:length(names)) {
   d <- subset(d, n>=5)
   d <- head(d,20)
   d$word <- factor(d$word, levels=d[order(d$n),]$word)
-  p1 <- ggplot(d, aes(x = word, y = n, fill = cluster5)) + 
+  p1 <- ggplot(d, aes(x = word, y = n, fill = cluster5)) +
     labs(y = NULL, x = NULL, fill = NULL) +
     geom_bar(stat = "identity") +
     facet_wrap(~cluster5, scales = "free", labeller = as_labeller(cluster.lab)) +
@@ -165,11 +165,11 @@ for (i in 1:length(names)) {
                         axis.ticks = element_line(size = 0),
                         panel.grid.minor.y = element_blank(),
                         panel.grid.major.y = element_blank() ) +
-    theme(legend.position="bottom") 
-  
-  
+    theme(legend.position="bottom")
+
+
   plist[[names[i]]] = p1
-}   
+}
 
 do.call("grid.arrange", c(plist, ncol=3))
 #dev.off()
@@ -208,9 +208,9 @@ library(rsample)
 ##but this step codes everything to 1/0 so if i go to do this for class 2 next, all the data on class 2 is missing?
 
 
-zillow$cluster5[zillow$cluster5!=2] <- 0    
-zillow$cluster5[zillow$cluster5==2] <- 1    
-words$cluster5[words$cluster5!=2] <- 0    
+zillow$cluster5[zillow$cluster5!=2] <- 0
+zillow$cluster5[zillow$cluster5==2] <- 1
+words$cluster5[words$cluster5!=2] <- 0
 words$cluster5[words$cluster5==2] <- 1
 
 
@@ -245,7 +245,7 @@ data_joined <- data_frame(USER_ID = word_rownames) %>%
 
 #Run model on training data (slow)
 
-is_cluster <- data_joined$cluster5 == 5             
+is_cluster <- data_joined$cluster5 == 5
 model <- cv.glmnet(sparse_words, is_cluster,
                    family = "binomial", intercept = TRUE
                    #parallel = TRUE, keep = TRUE

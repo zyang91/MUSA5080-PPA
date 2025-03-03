@@ -50,13 +50,13 @@ Note where we bring in burglary data - you will want to vary this part to do you
 
 ```{r read_data}
 # Read and process police districts data
-policeDistricts <- 
+policeDistricts <-
   st_read("https://data.cityofchicago.org/api/geospatial/fthy-xz3r?method=export&format=GeoJSON") %>%
   st_transform('ESRI:102271') %>%  # Transform coordinate reference system
   dplyr::select(District = dist_num)  # Select only the district number, renaming it to 'District'
 
 # Read and process police beats data
-policeBeats <- 
+policeBeats <-
   st_read("https://data.cityofchicago.org/api/geospatial/aerh-rz74?method=export&format=GeoJSON") %>%
   st_transform('ESRI:102271') %>%  # Transform coordinate reference system
   dplyr::select(District = beat_num)  # Select only the beat number, renaming it to 'District'
@@ -68,8 +68,8 @@ bothPoliceUnits <- rbind(
 )
 
 # Read and process burglaries data
-burglaries <- 
-  read.socrata("https://data.cityofchicago.org/Public-Safety/Crimes-2017/d62x-nvdr") %>% 
+burglaries <-
+  read.socrata("https://data.cityofchicago.org/Public-Safety/Crimes-2017/d62x-nvdr") %>%
   filter(Primary.Type == "BURGLARY" & Description == "FORCIBLE ENTRY") %>%  # Filter burglaries data
   mutate(x = gsub("[()]", "", Location)) %>%  # Clean location data
   separate(x, into = c("Y", "X"), sep = ",") %>%  # Separate X and Y coordinates
@@ -80,7 +80,7 @@ burglaries <-
   distinct()  # Keep only distinct geometries
 
 # Read and process Chicago boundary data
-chicagoBoundary <- 
+chicagoBoundary <-
   st_read(file.path(root.dir, "/Chapter5/chicagoBoundary.geojson")) %>%  # Read Chicago boundary data
   st_transform('ESRI:102271')  # Transform coordinate reference system
 
@@ -98,16 +98,16 @@ Plotting point data and density
 # Uses grid.arrange to organize independent plots
 grid.arrange(
   ncol = 2,
-  
+
   # Plot 1: Burglaries overlaid on Chicago boundary
-  ggplot() + 
+  ggplot() +
     geom_sf(data = chicagoBoundary) +  # Add Chicago boundary
     geom_sf(data = burglaries, colour = "red", size = 0.1, show.legend = "point") +  # Overlay burglaries
     labs(title = "Burglaries, Chicago - 2017") +  # Set plot title
     theme_void(),  # Use a blank theme
-  
+
   # Plot 2: Density of burglaries with contours overlaid on Chicago boundary
-  ggplot() + 
+  ggplot() +
     geom_sf(data = chicagoBoundary, fill = "grey40") +  # Add Chicago boundary with grey fill
     stat_density2d(data = data.frame(st_coordinates(burglaries)),  # Compute 2D kernel density estimate
                    aes(X, Y, fill = ..level.., alpha = ..level..),  # Define aesthetics for density contours
@@ -131,9 +131,9 @@ Examine the fishnet - the unique ID is crucial to building a data set!
 ```{r fishnet}
 ## using {sf} to create the grid
 ## Note the `.[chicagoBoundary] %>% ` line. This is needed to clip the grid to our data
-fishnet <- 
+fishnet <-
 st_make_grid(chicagoBoundary,
-               cellsize = 500, 
+               cellsize = 500,
                square = TRUE) %>%
   .[chicagoBoundary] %>%            # fast way to select intersecting polygons
   st_sf() %>%   mutate(uniqueID = 1:n())
@@ -149,13 +149,13 @@ st_make_grid(chicagoBoundary,
 
 ```{r spatialjoin}
 ## add a value of 1 to each crime, sum them with aggregate
-crime_net <- 
-  dplyr::select(burglaries) %>% 
-  mutate(countBurglaries = 1) %>% 
+crime_net <-
+  dplyr::select(burglaries) %>%
+  mutate(countBurglaries = 1) %>%
   aggregate(., fishnet, sum) %>%
   mutate(countBurglaries = replace_na(countBurglaries, 0),
          uniqueID = 1:n(),
-         cvID = sample(round(nrow(fishnet) / 24), 
+         cvID = sample(round(nrow(fishnet) / 24),
                        size=nrow(fishnet), replace = TRUE))
 
 ggplot() +
@@ -178,7 +178,7 @@ ggplot() +
 ## only pulling a single variable for our model to keep it simple
 ## using Socrata again
 # Read the dataset of abandoned vehicle service requests from the City of Chicago
-abandonCars <- 
+abandonCars <-
   read.socrata("https://data.cityofchicago.org/Service-Requests/311-Service-Requests-Abandoned-Vehicles/3c9v-pnva") %>%
     # Extract the year from the creation date and filter for the year 2017
     mutate(year = substr(creation_date, 1, 4)) %>% filter(year == "2017") %>%
@@ -193,7 +193,7 @@ abandonCars <-
     mutate(Legend = "Abandoned_Cars")
 
 # Read neighborhood boundaries for Chicago and transform to match fishnet CRS
-neighborhoods <- 
+neighborhoods <-
   st_read("https://raw.githubusercontent.com/blackmad/neighborhoods/master/chicago.geojson") %>%
   st_transform(st_crs(fishnet))
 
@@ -202,7 +202,7 @@ neighborhoods <-
 
 ```{r plot2}
   # Plot 2: Abandoned Cars overlaid on Chicago neighborhooods
-  ggplot() + 
+  ggplot() +
     geom_sf(data = neighborhoods) +  # Add Chicago boundary
     geom_sf(data = abandonCars, colour = "red", size = 0.1, show.legend = "point") +  # Overlay burglaries
     labs(title = "Abandoned Cars, Chicago - 2017") +  # Set plot title
@@ -270,7 +270,7 @@ vars_net <- vars_net %>%  # Start with the summarized variables data
 
 ```{r vizNN}
 ## Visualize the NN feature
-vars_net.long.nn <- 
+vars_net.long.nn <-
   dplyr::select(vars_net, ends_with(".nn")) %>%
     gather(Variable, value, -geometry)
 
@@ -288,7 +288,7 @@ Since the counts were aggregated to each cell by `uniqueID` we can use that to j
 ```{r}
 ## important to drop the geometry from joining features
 final_net <-
-  left_join(crime_net, st_drop_geometry(vars_net), by="uniqueID") 
+  left_join(crime_net, st_drop_geometry(vars_net), by="uniqueID")
 
 ```
 
@@ -327,7 +327,7 @@ Mendez C. (2020). Spatial autocorrelation analysis in R. R Studio/RPubs. Availab
 
 ```{r}
 ## generates warnings from PROJ issues
-## {spdep} to make polygon to neighborhoods... 
+## {spdep} to make polygon to neighborhoods...
 final_net.nb <- poly2nb(as_Spatial(final_net), queen=TRUE)
 ## ... and neighborhoods to list of weigths
 final_net.weights <- nb2listw(final_net.nb, style="W", zero.policy=TRUE)
@@ -337,25 +337,25 @@ final_net.weights <- nb2listw(final_net.nb, style="W", zero.policy=TRUE)
 
 ```{r}
 ## see ?localmoran
-local_morans <- localmoran(final_net$Abandoned_Cars, final_net.weights, zero.policy=TRUE) %>% 
+local_morans <- localmoran(final_net$Abandoned_Cars, final_net.weights, zero.policy=TRUE) %>%
   as.data.frame()
 
 # join local Moran's I results to fishnet
-final_net.localMorans <- 
-  cbind(local_morans, as.data.frame(final_net)) %>% 
+final_net.localMorans <-
+  cbind(local_morans, as.data.frame(final_net)) %>%
   st_sf() %>%
-  dplyr::select(Abandoned_Cars_Count = Abandoned_Cars, 
-                Local_Morans_I = Ii, 
+  dplyr::select(Abandoned_Cars_Count = Abandoned_Cars,
+                Local_Morans_I = Ii,
                 P_Value = `Pr(z != E(Ii))`) %>%
   mutate(Significant_Hotspots = ifelse((P_Value <= 0.05), 1, 0)) %>%
   gather(Variable, Value, -geometry)
-  
+
 ```
 
 ### Plotting local Moran's I results
 
 This is a complex code chunk - it's a loop which builds ggplots of local Moran's for each of your `vars`.
-It is important to recognize that we can get high local moran's I values in the case of either high values near other high values or low values near other low values. If you check out the equation for LMI, you'll see that it is driven by a calulation for all pairs of neighbors, that looks at the (in this case) home values of one neighborhood minus the mean of all home values in the study, times home values of an adjacent neighborhood minus the mean. Therefore, since we multiply them together, two values below the mean will yield and positive value as well two values above the mean. 
+It is important to recognize that we can get high local moran's I values in the case of either high values near other high values or low values near other low values. If you check out the equation for LMI, you'll see that it is driven by a calulation for all pairs of neighbors, that looks at the (in this case) home values of one neighborhood minus the mean of all home values in the study, times home values of an adjacent neighborhood minus the mean. Therefore, since we multiply them together, two values below the mean will yield and positive value as well two values above the mean.
 
 In the code below, we examine the local moran's I value, the p-value, and extracts hotspots (that can be hot or cold!) based on the p-value.
 
@@ -367,9 +367,9 @@ vars <- unique(final_net.localMorans$Variable)
 varList <- list()
 
 for(i in vars){
-  varList[[i]] <- 
+  varList[[i]] <-
     ggplot() +
-      geom_sf(data = filter(final_net.localMorans, Variable == i), 
+      geom_sf(data = filter(final_net.localMorans, Variable == i),
               aes(fill = Value), colour=NA) +
       scale_fill_viridis(name="") +
       labs(title=i) +
@@ -403,11 +403,11 @@ Now we will calculate distance to that nearest hotspot
 
 ```{r}
 # generates warning from NN
-final_net <- final_net %>% 
-  mutate(abandoned.isSig.dist = 
+final_net <- final_net %>%
+  mutate(abandoned.isSig.dist =
            nn_function(st_c(st_coid(final_net)),
-                       st_c(st_coid(filter(final_net, 
-                                           hotspot == 1))), 
+                       st_c(st_coid(filter(final_net,
+                                           hotspot == 1))),
                        k = 1))
 
 ## What does k = 1 represent?
@@ -439,7 +439,7 @@ reg.ss.vars <- c("Abandoned_Cars.nn", "abandoned.isSig.dist")
 ## RUN REGRESSIONS
 reg.ss.spatialCV <- crossValidate(
   dataset = final_net,
-  id = "name",                           
+  id = "name",
   dependentVariable = "countBurglaries",
   indVariables = reg.ss.vars) %>%
     dplyr::select(cvID = name, countBurglaries, Prediction, geometry)
@@ -447,26 +447,26 @@ reg.ss.spatialCV <- crossValidate(
 
 ```{r}
 # calculate errors by NEIGHBORHOOD
-error_by_reg_and_fold <- 
+error_by_reg_and_fold <-
   reg.ss.spatialCV %>%
-    group_by(cvID) %>% 
+    group_by(cvID) %>%
     summarize(Mean_Error = mean(Prediction - countBurglaries, na.rm = T),
               MAE = mean(abs(Mean_Error), na.rm = T),
               SD_MAE = mean(abs(Mean_Error), na.rm = T)) %>%
   ungroup()
 
-error_by_reg_and_fold %>% 
+error_by_reg_and_fold %>%
   arrange(desc(MAE))
-error_by_reg_and_fold %>% 
+error_by_reg_and_fold %>%
   arrange(MAE)
 
 ## plot histogram of OOF (out of fold) errors
 error_by_reg_and_fold %>%
-  ggplot(aes(MAE)) + 
+  ggplot(aes(MAE)) +
     geom_histogram(bins = 30, colour="black", fill = "#FDE725FF") +
-  scale_x_continuous(breaks = seq(0, 11, by = 1)) + 
+  scale_x_continuous(breaks = seq(0, 11, by = 1)) +
     labs(title="Distribution of MAE", subtitle = "LOGO-CV",
-         x="Mean Absolute Error", y="Count") 
+         x="Mean Absolute Error", y="Count")
 ```
 
 ## Density vs predictions
@@ -484,14 +484,14 @@ burg_KD.2000 <-density.ppp(burg_ppp, 2000)
 burg_KD.df <- rbind(
   mutate(data.frame(rasterToPoints(mask(raster(burg_KD.1000), as(neighborhoods, 'Spatial')))), Legend = "1000 Ft."),
   mutate(data.frame(rasterToPoints(mask(raster(burg_KD.1500), as(neighborhoods, 'Spatial')))), Legend = "1500 Ft."),
-  mutate(data.frame(rasterToPoints(mask(raster(burg_KD.2000), as(neighborhoods, 'Spatial')))), Legend = "2000 Ft.")) 
+  mutate(data.frame(rasterToPoints(mask(raster(burg_KD.2000), as(neighborhoods, 'Spatial')))), Legend = "2000 Ft."))
 
 burg_KD.df$Legend <- factor(burg_KD.df$Legend, levels = c("1000 Ft.", "1500 Ft.", "2000 Ft."))
 
 ggplot(data=burg_KD.df, aes(x=x, y=y)) +
-  geom_raster(aes(fill=layer)) + 
+  geom_raster(aes(fill=layer)) +
   facet_wrap(~Legend) +
-  coord_sf(crs=st_crs(final_net)) + 
+  coord_sf(crs=st_crs(final_net)) +
   scale_fill_viridis(name="Density") +
   labs(title = "Kernel density with 3 different search radii") +
   theme_void()
@@ -515,17 +515,17 @@ as.data.frame(burg_KD.1000) %>%
 Let's see how our model performed relative to KD on the following year's data.
 
 ```{r}
-burglaries18 <- 
-  read.socrata("https://data.cityofchicago.org/Public-Safety/Crimes-2018/3i3m-jwuy") %>% 
-  filter(Primary.Type == "BURGLARY" & 
+burglaries18 <-
+  read.socrata("https://data.cityofchicago.org/Public-Safety/Crimes-2018/3i3m-jwuy") %>%
+  filter(Primary.Type == "BURGLARY" &
          Description == "FORCIBLE ENTRY") %>%
   mutate(x = gsub("[()]", "", Location)) %>%
   separate(x,into= c("Y","X"), sep=",") %>%
   mutate(X = as.numeric(X),
-         Y = as.numeric(Y)) %>% 
+         Y = as.numeric(Y)) %>%
   na.omit %>%
   st_as_sf(coords = c("X", "Y"), crs = 4326, agr = "constant") %>%
-  st_transform('ESRI:102271') %>% 
+  st_transform('ESRI:102271') %>%
   distinct() %>%
   .[fishnet,]
 ```
@@ -534,8 +534,8 @@ burglaries18 <-
 
 burg_KDE_sum <- as.data.frame(burg_KD.1000) %>%
   st_as_sf(coords = c("x", "y"), crs = st_crs(final_net)) %>%
-  aggregate(., final_net, mean) 
-kde_breaks <- classIntervals(burg_KDE_sum$value, 
+  aggregate(., final_net, mean)
+kde_breaks <- classIntervals(burg_KDE_sum$value,
                              n = 5, "fisher")
 burg_KDE_sf <- burg_KDE_sum %>%
   mutate(label = "Kernel Density",
@@ -556,7 +556,7 @@ burg_KDE_sf <- burg_KDE_sum %>%
 Note that this is different from the book, where we pull a model out of a list of models we've created. For your homework, you'll be creating multiple models.
 
 ```{r}
-ml_breaks <- classIntervals(reg.ss.spatialCV$Prediction, 
+ml_breaks <- classIntervals(reg.ss.spatialCV$Prediction,
                              n = 5, "fisher")
 burg_risk_sf <-
   reg.ss.spatialCV %>%

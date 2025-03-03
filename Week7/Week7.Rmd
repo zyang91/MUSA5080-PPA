@@ -63,9 +63,9 @@ plot(lm.fit1)
 
 The residuals seem a bit abnornormal (non-normal). What to do?
 Normality of Residuals:
-  
+
 Problem: Residuals are not normally distributed; they exhibit skewness or heavy tails.
-Fix: Transform the response variable to achieve normality 
+Fix: Transform the response variable to achieve normality
 (e.g., log transformation), or consider using robust standard errors if the sample size is large enough.
 
 Let's see what happens when we log the dependent variable
@@ -84,7 +84,7 @@ plot(lm.fit1)
 It is important to recognize that by taking the log of the dependent variable, we change the interpretation of the results.
 
 * Interpret the coefficients of the predictor variables as the percentage change in the mean response for a one-unit change in the predictor, holding other predictors constant.
-For example, if the coefficient for predictor1 is 0.05, you would interpret it as a 5% increase in the mean response for each one-unit increase in predictor1. 
+For example, if the coefficient for predictor1 is 0.05, you would interpret it as a 5% increase in the mean response for each one-unit increase in predictor1.
 
 * To interpret the results in terms of the original scale of the dependent variable, back-transform the coefficients and predictions using the exponential function (exp() in R).
 For example, to back-transform the coefficient of predictor1: exp(coef(model)["predictor1"]).
@@ -142,7 +142,7 @@ Check for high leverage outliers
 plot(model2, which = 4)
 ```
 
-You could take a dive and look into that observation number 327. 
+You could take a dive and look into that observation number 327.
 You could remove it and run the regression with it and without it to see if its ruining your life. If it were data you were more familiar with, investigate to see what's going on..
 
 # 2 Exploring Validation and Cross Validation.
@@ -179,10 +179,10 @@ mean((mpg - predict(lm.fit, Auto))[-train]^2)
 Therefore, the estimated test MSE for the linear regression fit is $23.27$. We can use the poly() function to estimate the test error for the quadratic and cubic regressions.
 
 ```{r modelcompare}
-lm.fit2 <- lm(mpg ~ poly(horsepower, 2), data = Auto, 
+lm.fit2 <- lm(mpg ~ poly(horsepower, 2), data = Auto,
     subset = train)
 mean((mpg - predict(lm.fit2, Auto))[-train]^2)
-lm.fit3 <- lm(mpg ~ poly(horsepower, 3), data = Auto, 
+lm.fit3 <- lm(mpg ~ poly(horsepower, 3), data = Auto,
     subset = train)
 mean((mpg - predict(lm.fit3, Auto))[-train]^2)
 ```
@@ -195,10 +195,10 @@ set.seed(2)
 train <- sample(392, 196)
 lm.fit <- lm(mpg ~ horsepower, subset = train)
 mean((mpg - predict(lm.fit, Auto))[-train]^2)
-lm.fit2 <- lm(mpg ~ poly(horsepower, 2), data = Auto, 
+lm.fit2 <- lm(mpg ~ poly(horsepower, 2), data = Auto,
     subset = train)
 mean((mpg - predict(lm.fit2, Auto))[-train]^2)
-lm.fit3 <- lm(mpg ~ poly(horsepower, 3), data = Auto, 
+lm.fit3 <- lm(mpg ~ poly(horsepower, 3), data = Auto,
     subset = train)
 mean((mpg - predict(lm.fit3, Auto))[-train]^2)
 ```
@@ -209,7 +209,7 @@ we find that the validation set error rates for the models with linear, quadrati
 These results are consistent with our previous findings: a model that predicts `mpg` using a quadratic function of `horsepower` performs better than a model that involves only a linear function of `horsepower`, and there is little evidence in favor of a model that uses a cubic function of `horsepower`.
 
 # Leave-One-Out Cross-Validation
-The LOOCV estimate can be automatically computed for any generalized linear model using the `glm()` and `cv.glm()` functions. 
+The LOOCV estimate can be automatically computed for any generalized linear model using the `glm()` and `cv.glm()` functions.
 
 We will use the glm family of models soon to estimate other, non-linear regressions. But for now, it acts the same as the lm function if we just use the defaults.
 

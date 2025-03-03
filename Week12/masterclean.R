@@ -105,7 +105,7 @@ rm(sample, FROM, TO, wordlist1)
 
 ############ Non-transportation word list for cleaned remarks ###################
 # take out walk-in closet, walkway, and other "walk" words that do not pertain
-# to walkable environment 
+# to walkable environment
 walksdf <- sqldf("select phrase_, sum(cnt_) cnt_ from (select substring(PublicRemarks,(INSTR(PublicRemarks,'walk')-10), 20) phrase_,1 as cnt_ from clt where PublicRemarks like '%walk%') a group by phrase_")
 
 sample <- clt$PublicRemarks
@@ -293,7 +293,7 @@ rm(sample, FROM, TO, wordlist4)
 head(clt$PublicRemarks)
 
 ###################### Misspell wordlist ######################
-# removes misspellings and updates a list of words 
+# removes misspellings and updates a list of words
 
 sample <- clt$PublicRemarks
 
@@ -477,7 +477,7 @@ write.table(listingss, file="addresslistings.csv", row.names=F, sep=",")
 clt$raw.remarks <- clt$PublicRemarks
 
 ### Non-Alphanumeric Word List for raw remarks
-sample <- clt$raw.remarks  
+sample <- clt$raw.remarks
 
 wordlist1 <- fread("NonAlpha_Word_List_Run_First.csv", header=T)
 wordlist1 <- wordlist1[,lapply(wordlist1,function(x) tolower(x))]
@@ -512,7 +512,7 @@ head(clt$raw.remarks)
 ### create unique remarks_id
 raw <- data.table(clt, key="PublicRemarks")
 raw[, remark_id:=.GRP, by=key(raw)]                  #remark_id
-raw[, remarkN:= .N, by=remark_id]                    #remarkN    
+raw[, remarkN:= .N, by=remark_id]                    #remarkN
 table(raw$remarkN)
 
 ### drop if remarkN > 3
