@@ -1852,7 +1852,7 @@ noise.</p>
 library(tidyverse)
 library(kableExtra)
 library(caret)
-library(knitr) 
+library(knitr)
 library(pscl)
 library(plotROC)
 library(pROC)
@@ -1879,11 +1879,11 @@ are different?</strong></p>
 <pre class="r"><code>advertising %&gt;%
   dplyr::select(click,Area_Income, Time_On_FB, Daily_Internet_Usage, Age) %&gt;%
   gather(Variable, value, -click) %&gt;%
-    ggplot(aes(click, value, fill=click)) + 
-      geom_bar(position = &quot;dodge&quot;, stat = &quot;summary&quot;, fun = &quot;mean&quot;) + 
+    ggplot(aes(click, value, fill=click)) +
+      geom_bar(position = &quot;dodge&quot;, stat = &quot;summary&quot;, fun = &quot;mean&quot;) +
       facet_wrap(~Variable, scales = &quot;free&quot;) +
       scale_fill_manual(values = palette2) +
-      labs(x=&quot;Click&quot;, y=&quot;Value&quot;, 
+      labs(x=&quot;Click&quot;, y=&quot;Value&quot;,
            title = &quot;Feature associations with the likelihood of click&quot;,
            subtitle = &quot;(continous outcomes)&quot;) +
       theme(legend.position = &quot;none&quot;)</code></pre>
@@ -1891,8 +1891,8 @@ are different?</strong></p>
 <pre class="r"><code>advertising %&gt;%
     dplyr::select(click,Area_Income, Time_On_FB, Daily_Internet_Usage, Age) %&gt;%
     gather(Variable, value, -click) %&gt;%
-    ggplot() + 
-    geom_density(aes(value, color=click), fill = &quot;transparent&quot;) + 
+    ggplot() +
+    geom_density(aes(value, color=click), fill = &quot;transparent&quot;) +
     facet_wrap(~Variable, scales = &quot;free&quot;) +
     scale_fill_manual(values = palette2) +
     labs(title = &quot;Feature distributions click vs. no click&quot;,
@@ -1902,7 +1902,7 @@ are different?</strong></p>
     dplyr::select(click, Male, Fashion_FB_Group) %&gt;%
     gather(Variable, value, -click) %&gt;%
     count(Variable, value, click) %&gt;%
-      ggplot(., aes(value, n, fill = click)) +   
+      ggplot(., aes(value, n, fill = click)) +
         geom_bar(position = &quot;dodge&quot;, stat=&quot;identity&quot;) +
         facet_wrap(~Variable, scales=&quot;free&quot;) +
         scale_fill_manual(values = palette2) +
@@ -1920,11 +1920,11 @@ of observations. I create a “click average” for each country to use a
 continuous instead of categorical variable.</p>
 <p>I also create a <code>userTimeFrame</code> variable to see if the
 time of day the user is viewing the ad has some kind of effect.</p>
-<pre class="r"><code>advertising &lt;- 
-  advertising %&gt;% 
-  group_by(Country) %&gt;% 
-  summarize(totClicks = sum(clickNumeric), 
-            n = n(), 
+<pre class="r"><code>advertising &lt;-
+  advertising %&gt;%
+  group_by(Country) %&gt;%
+  summarize(totClicks = sum(clickNumeric),
+            n = n(),
             nationalClickAvg = 100*(totClicks/n)) %&gt;%
   dplyr::select(-n, -totClicks) %&gt;%
   right_join(advertising, .) %&gt;%
@@ -1955,41 +1955,41 @@ advertisingTest  &lt;- advertising[-trainIndex,]</code></pre>
 <code>clickNumeric</code> and we use most of our variables in the
 regression. (See <code>dplyr::select</code>).</p>
 <pre class="r"><code>advertisingModel &lt;- glm(clickNumeric ~ .,
-                  data=advertisingTrain %&gt;% 
+                  data=advertisingTrain %&gt;%
                     dplyr::select(-Country, -Timestamp, -userTimeFrame, -click),
                   family=&quot;binomial&quot; (link=&quot;logit&quot;))
 
 summary(advertisingModel)</code></pre>
-<pre><code>## 
+<pre><code>##
 ## Call:
-## glm(formula = clickNumeric ~ ., family = binomial(link = &quot;logit&quot;), 
-##     data = advertisingTrain %&gt;% dplyr::select(-Country, -Timestamp, 
+## glm(formula = clickNumeric ~ ., family = binomial(link = &quot;logit&quot;),
+##     data = advertisingTrain %&gt;% dplyr::select(-Country, -Timestamp,
 ##         -userTimeFrame, -click))
-## 
-## Deviance Residuals: 
-##     Min       1Q   Median       3Q      Max  
-## -2.4767  -0.7866   0.1809   0.8302   2.5629  
-## 
+##
+## Deviance Residuals:
+##     Min       1Q   Median       3Q      Max
+## -2.4767  -0.7866   0.1809   0.8302   2.5629
+##
 ## Coefficients:
-##                          Estimate   Std. Error z value             Pr(&gt;|z|)    
-## (Intercept)           0.639467302  0.970174950   0.659             0.509815    
-## Time_On_FB           -0.013676939  0.006727523  -2.033             0.042054 *  
+##                          Estimate   Std. Error z value             Pr(&gt;|z|)
+## (Intercept)           0.639467302  0.970174950   0.659             0.509815
+## Time_On_FB           -0.013676939  0.006727523  -2.033             0.042054 *
 ## Age                   0.042673839  0.011076909   3.853             0.000117 ***
 ## Area_Income          -0.000057136  0.000009765  -5.851        0.00000000489 ***
-## Daily_Internet_Usage -0.003800990  0.002456604  -1.547             0.121802    
-## Fashion_FB_GroupYes  -0.250622249  0.245070420  -1.023             0.306471    
-## MaleMale             -0.021994253  0.237745730  -0.093             0.926292    
-## MaleUser_Identified  -0.044625105  0.402670485  -0.111             0.911757    
+## Daily_Internet_Usage -0.003800990  0.002456604  -1.547             0.121802
+## Fashion_FB_GroupYes  -0.250622249  0.245070420  -1.023             0.306471
+## MaleMale             -0.021994253  0.237745730  -0.093             0.926292
+## MaleUser_Identified  -0.044625105  0.402670485  -0.111             0.911757
 ## nationalClickAvg      0.051919999  0.005919430   8.771 &lt; 0.0000000000000002 ***
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-## 
+##
 ## (Dispersion parameter for binomial family taken to be 1)
-## 
+##
 ##     Null deviance: 692.86  on 499  degrees of freedom
 ## Residual deviance: 488.16  on 491  degrees of freedom
 ## AIC: 506.16
-## 
+##
 ## Number of Fisher Scoring iterations: 5</code></pre>
 <div id="discussion-3" class="section level2">
 <h2>Discussion 3</h2>
@@ -2006,39 +2006,39 @@ better.</p>
                   family=&quot;binomial&quot; (link=&quot;logit&quot;))
 
 summary(advertisingModel)</code></pre>
-<pre><code>## 
+<pre><code>##
 ## Call:
-## glm(formula = clickNumeric ~ ., family = binomial(link = &quot;logit&quot;), 
-##     data = advertisingTrain %&gt;% dplyr::select(-Country, -Timestamp, 
+## glm(formula = clickNumeric ~ ., family = binomial(link = &quot;logit&quot;),
+##     data = advertisingTrain %&gt;% dplyr::select(-Country, -Timestamp,
 ##         -click, -userTimeFrame, -Fashion_FB_Group))
-## 
-## Deviance Residuals: 
-##     Min       1Q   Median       3Q      Max  
-## -2.5432  -0.7933   0.1785   0.8229   2.5898  
-## 
+##
+## Deviance Residuals:
+##     Min       1Q   Median       3Q      Max
+## -2.5432  -0.7933   0.1785   0.8229   2.5898
+##
 ## Coefficients:
-##                          Estimate   Std. Error z value             Pr(&gt;|z|)    
-## (Intercept)           0.594866975  0.966900550   0.615             0.538402    
-## Time_On_FB           -0.013843698  0.006714327  -2.062             0.039225 *  
+##                          Estimate   Std. Error z value             Pr(&gt;|z|)
+## (Intercept)           0.594866975  0.966900550   0.615             0.538402
+## Time_On_FB           -0.013843698  0.006714327  -2.062             0.039225 *
 ## Age                   0.041884135  0.011027912   3.798             0.000146 ***
 ## Area_Income          -0.000058528  0.000009675  -6.049        0.00000000145 ***
-## Daily_Internet_Usage -0.003452018  0.002430181  -1.420             0.155469    
-## MaleMale              0.015007983  0.234673376   0.064             0.949008    
-## MaleUser_Identified   0.003146956  0.399726321   0.008             0.993718    
+## Daily_Internet_Usage -0.003452018  0.002430181  -1.420             0.155469
+## MaleMale              0.015007983  0.234673376   0.064             0.949008
+## MaleUser_Identified   0.003146956  0.399726321   0.008             0.993718
 ## nationalClickAvg      0.051789012  0.005914613   8.756 &lt; 0.0000000000000002 ***
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-## 
+##
 ## (Dispersion parameter for binomial family taken to be 1)
-## 
+##
 ##     Null deviance: 692.86  on 499  degrees of freedom
 ## Residual deviance: 489.21  on 492  degrees of freedom
 ## AIC: 505.21
-## 
+##
 ## Number of Fisher Scoring iterations: 5</code></pre>
 <pre class="r"><code>pR2(advertisingModel)</code></pre>
 <pre><code>## fitting null model for pseudo-r2</code></pre>
-<pre><code>##          llh      llhNull           G2     McFadden         r2ML         r2CU 
+<pre><code>##          llh      llhNull           G2     McFadden         r2ML         r2CU
 ## -244.6064844 -346.4295765  203.6461842    0.2939215    0.3345504    0.4461529</code></pre>
 </div>
 </div>
@@ -2059,7 +2059,7 @@ to see what these predictions look like.</p>
 clickers (<code>1</code>) and non-clickers (<code>0</code>).
 <strong>Write a sentence or two about how you think our model is
 performing.</strong></p>
-<pre class="r"><code>ggplot(testProbs, aes(x = Probs, fill = as.factor(Outcome))) + 
+<pre class="r"><code>ggplot(testProbs, aes(x = Probs, fill = as.factor(Outcome))) +
   geom_density() +
   facet_grid(Outcome ~ .) +
   scale_fill_manual(values = palette2) +
@@ -2078,37 +2078,37 @@ These errors can be classified in four ways for a binary model.</p>
 <p>A “confusion matrix” for the threshold of 50% shows us the rate at
 which we got True Positives (aka Sensitivity), False Positives, True
 Negatives (aka Specificity) and False Negatives for that threshold.</p>
-<pre class="r"><code>testProbs &lt;- 
+<pre class="r"><code>testProbs &lt;-
   testProbs %&gt;%
   mutate(predOutcome  = as.factor(ifelse(testProbs$Probs &gt; 0.5 , 1, 0)))</code></pre>
-<pre class="r"><code>caret::confusionMatrix(testProbs$predOutcome, testProbs$Outcome, 
+<pre class="r"><code>caret::confusionMatrix(testProbs$predOutcome, testProbs$Outcome,
                        positive = &quot;1&quot;)</code></pre>
 <pre><code>## Confusion Matrix and Statistics
-## 
+##
 ##           Reference
 ## Prediction   0   1
 ##          0 182  54
 ##          1  62 202
-##                                              
-##                Accuracy : 0.768              
-##                  95% CI : (0.7285, 0.8043)   
-##     No Information Rate : 0.512              
+##
+##                Accuracy : 0.768
+##                  95% CI : (0.7285, 0.8043)
+##     No Information Rate : 0.512
 ##     P-Value [Acc &gt; NIR] : &lt;0.0000000000000002
-##                                              
-##                   Kappa : 0.5354             
-##                                              
-##  Mcnemar&#39;s Test P-Value : 0.5157             
-##                                              
-##             Sensitivity : 0.7891             
-##             Specificity : 0.7459             
-##          Pos Pred Value : 0.7652             
-##          Neg Pred Value : 0.7712             
-##              Prevalence : 0.5120             
-##          Detection Rate : 0.4040             
-##    Detection Prevalence : 0.5280             
-##       Balanced Accuracy : 0.7675             
-##                                              
-##        &#39;Positive&#39; Class : 1                  
+##
+##                   Kappa : 0.5354
+##
+##  Mcnemar&#39;s Test P-Value : 0.5157
+##
+##             Sensitivity : 0.7891
+##             Specificity : 0.7459
+##          Pos Pred Value : 0.7652
+##          Neg Pred Value : 0.7712
+##              Prevalence : 0.5120
+##          Detection Rate : 0.4040
+##    Detection Prevalence : 0.5280
+##       Balanced Accuracy : 0.7675
+##
+##        &#39;Positive&#39; Class : 1
 ## </code></pre>
 <div id="discussion-4" class="section level2">
 <h2>Discussion 4</h2>
@@ -2153,30 +2153,30 @@ they look?</p>
 <pre class="r"><code>ctrl &lt;- trainControl(method = &quot;cv&quot;, number = 100, classProbs=TRUE, summaryFunction=twoClassSummary)
 
 cvFit &lt;- train(click ~ .,
-                  data=advertising %&gt;% 
-                    dplyr::select(-Country, -Timestamp, -clickNumeric, 
-                                  -userTimeFrame, -Fashion_FB_Group), 
+                  data=advertising %&gt;%
+                    dplyr::select(-Country, -Timestamp, -clickNumeric,
+                                  -userTimeFrame, -Fashion_FB_Group),
                 method=&quot;glm&quot;, family=&quot;binomial&quot;,
                 metric=&quot;ROC&quot;, trControl = ctrl)
 
 cvFit</code></pre>
-<pre><code>## Generalized Linear Model 
-## 
+<pre><code>## Generalized Linear Model
+##
 ## 1000 samples
 ##    6 predictor
-##    2 classes: &#39;CLICK&#39;, &#39;NO_CLICK&#39; 
-## 
+##    2 classes: &#39;CLICK&#39;, &#39;NO_CLICK&#39;
+##
 ## No pre-processing
-## Resampling: Cross-Validated (100 fold) 
-## Summary of sample sizes: 989, 990, 990, 990, 990, 990, ... 
+## Resampling: Cross-Validated (100 fold)
+## Summary of sample sizes: 989, 990, 990, 990, 990, 990, ...
 ## Resampling results:
-## 
-##   ROC        Sens       Spec  
+##
+##   ROC        Sens       Spec
 ##   0.8446833  0.7856667  0.7435</code></pre>
 <pre class="r"><code>dplyr::select(cvFit$resample, -Resample) %&gt;%
   gather(metric, value) %&gt;%
   left_join(gather(cvFit$results[2:4], metric, mean)) %&gt;%
-  ggplot(aes(value)) + 
+  ggplot(aes(value)) +
     geom_histogram(bins=35, fill = &quot;#FF006A&quot;) +
     facet_wrap(~metric) +
     geom_vline(aes(xintercept = mean), colour = &quot;#981FAC&quot;, linetype = 3, size = 1.5) +
@@ -2324,7 +2324,7 @@ don’t tune the threshold.</strong></p>
   x = .01
   all_prediction &lt;- data.frame()
   while (x &lt;= 1) {
-  
+
   this_prediction &lt;-
       testProbs %&gt;%
       mutate(predOutcome = ifelse(Probs &gt; x, 1, 0)) %&gt;%
@@ -2340,7 +2340,7 @@ don’t tune the threshold.</strong></p>
                ifelse(Variable == &quot;False_Negative&quot;, (-0.35) * Count,
                ifelse(Variable == &quot;False_Positive&quot;, (-0.1) * Count, 0)))),
             Threshold = x)
-  
+
   all_prediction &lt;- rbind(all_prediction, this_prediction)
   x &lt;- x + .01
   }
@@ -2348,9 +2348,9 @@ return(all_prediction)
 }</code></pre>
 <pre class="r"><code>whichThreshold &lt;- iterateThresholds(testProbs2)
 
-whichThreshold_revenue &lt;- 
-whichThreshold %&gt;% 
-    group_by(Threshold) %&gt;% 
+whichThreshold_revenue &lt;-
+whichThreshold %&gt;%
+    group_by(Threshold) %&gt;%
     summarize(Revenue = sum(Revenue))
 
   ggplot(whichThreshold_revenue)+

@@ -2,7 +2,7 @@
 title: "Lab and Homework: Space-Time Prediction of Bike Share Demand (MUSA 508, Fall, 2020)"
 author: "Instructor: Michael Fichman"
 date: "November 3, 2020"
-output: 
+output:
   html_document:
     toc: true
     toc_float: true
@@ -83,7 +83,7 @@ mapTheme <- theme(plot.title =element_text(size=12),
                   panel.border=element_blank(),
                   panel.grid.major=element_line(colour = 'transparent'),
                   panel.grid.minor=element_blank(),
-                  legend.direction = "vertical", 
+                  legend.direction = "vertical",
                   legend.position = "right",
                   plot.margin = margin(1, 1, 1, 1, 'cm'),
                   legend.key.height = unit(1, "cm"), legend.key.width = unit(0.2, "cm"))
@@ -121,7 +121,7 @@ We can take a look at our data to see the format and names of all of our columns
 glimpse(dat)
 ```
 
-Let's use some date parsing to bin" the data by 15 and 60 minute intervals by rounding. 
+Let's use some date parsing to bin" the data by 15 and 60 minute intervals by rounding.
 
 Notice we use the time format `ymd_hms` to denote year, month, day and hour, minute and seccond. We extract the `week` of the observation (ranging from 1-52 throughout the year) and the `dotw` for day of the week.
 
@@ -143,15 +143,15 @@ Using the `tidycensus` package, we can download census geography and variables. 
 We add the spatial information to our rideshare data as origin and destination data, first joining the origin station, then the destination station to our census data. We don't use the destination data in this exercise, but it may come in handy if you want to try to understand the dynamics of your data in exploratory analysis.
 
 ```{r get_census, message=FALSE, warning=FALSE, cache=TRUE, results = 'hide'}
-chicagoCensus <- 
-  get_acs(geography = "tract", 
-          variables = c("B01003_001", "B19013_001", 
+chicagoCensus <-
+  get_acs(geography = "tract",
+          variables = c("B01003_001", "B19013_001",
                         "B02001_002", "B08013_001",
-                        "B08012_001", "B08301_001", 
-                        "B08301_010", "B01002_001"), 
-          year = 2017, 
-          state = "IL", 
-          geometry = TRUE, 
+                        "B08012_001", "B08301_001",
+                        "B08301_010", "B01002_001"),
+          year = 2017,
+          state = "IL",
+          geometry = TRUE,
           county=c("Cook"),
           output = "wide") %>%
   rename(Total_Pop =  B01003_001E,
@@ -172,17 +172,17 @@ chicagoCensus <-
 ```
 
 ```{r extract_geometries }
-chicagoTracts <- 
+chicagoTracts <-
   chicagoCensus %>%
   as.data.frame() %>%
   distinct(GEOID, .keep_all = TRUE) %>%
-  select(GEOID, geometry) %>% 
+  select(GEOID, geometry) %>%
   st_sf
 
 ```
 
 ```{r add_census_tracts , message = FALSE, warning = FALSE}
-dat_census <- st_join(dat2 %>% 
+dat_census <- st_join(dat2 %>%
           filter(is.na(from_longitude) == FALSE &
                    is.na(from_latitude) == FALSE &
                    is.na(to_latitude) == FALSE &
@@ -216,7 +216,7 @@ Import weather data from O'Hare airport (code ORD) using `riem_measures`. We can
 These data can also be categorized as a part of an exploration of the relationship between your independent and dependent variables, e.g. "does wind appear to affect ridership during rush hour?"
 
 ```{r import_weather, message = FALSE, warning = FALSE }
-weather.Panel <- 
+weather.Panel <-
   riem_measures(station = "ORD", date_start = "2018-05-01", date_end = "2018-05-31") %>%
   dplyr::select(valid, tmpf, p01i, sknt)%>%
   replace(is.na(.), 0) %>%
@@ -234,11 +234,11 @@ glimpse(weather.Panel)
 
 ```{r plot_weather, catche = TRUE}
 grid.arrange(
-  ggplot(weather.Panel, aes(interval60,Precipitation)) + geom_line() + 
+  ggplot(weather.Panel, aes(interval60,Precipitation)) + geom_line() +
   labs(title="Percipitation", x="Hour", y="Perecipitation") + plotTheme,
-  ggplot(weather.Panel, aes(interval60,Wind_Speed)) + geom_line() + 
+  ggplot(weather.Panel, aes(interval60,Wind_Speed)) + geom_line() +
     labs(title="Wind Speed", x="Hour", y="Wind Speed") + plotTheme,
-  ggplot(weather.Panel, aes(interval60,Temperature)) + geom_line() + 
+  ggplot(weather.Panel, aes(interval60,Temperature)) + geom_line() +
     labs(title="Temperature", x="Hour", y="Temperature") + plotTheme,
   top="Weather Data - Chicago ORD - May, 2018")
 ```
@@ -255,12 +255,12 @@ ggplot(dat_census %>%
          tally())+
   geom_line(aes(x = interval60, y = n))+
   labs(title="Bike share trips per hr. Chicago, May, 2018",
-       x="Date", 
+       x="Date",
        y="Number of trips")+
   plotTheme
 ```
 
-Let's examine the distribution of trip volume by station for different times of the day. We clearly have a few high volume periods but mostly low volume. Our data must consist of a lot of low demand station/hours and a few high demand station hours. 
+Let's examine the distribution of trip volume by station for different times of the day. We clearly have a few high volume periods but mostly low volume. Our data must consist of a lot of low demand station/hours and a few high demand station hours.
 
 There's a possibility we may have to treat these as count data here, which means running Poisson regression. Then again, we might have enough of the higher counts in our high volume times and stations, that we should really be building a linear model to accomodate our actual volume and not worry about the low trip times/stations.
 
@@ -279,7 +279,7 @@ dat_census %>%
   ggplot()+
   geom_histogram(aes(mean_trips), binwidth = 1)+
   labs(title="Mean Number of Hourly Trips Per Station. Chicago, May, 2018",
-       x="Number of trips", 
+       x="Number of trips",
        y="Frequency")+
   facet_wrap(~time_of_day)+
   plotTheme
@@ -291,7 +291,7 @@ ggplot(dat_census %>%
          tally())+
   geom_histogram(aes(n), binwidth = 5)+
   labs(title="Bike share trips per hr by station. Chicago, May, 2018",
-       x="Number of Stations", 
+       x="Number of Stations",
        y="Trip Counts")+
   plotTheme
 ```
@@ -300,17 +300,17 @@ ggplot(dat_census %>%
 ggplot(dat_census %>% mutate(hour = hour(start_time)))+
      geom_freqpoly(aes(hour, color = dotw), binwidth = 1)+
   labs(title="Bike share trips in Chicago, by day of the week, May, 2018",
-       x="Hour", 
+       x="Hour",
        y="Trip Counts")+
      plotTheme
 
 
-ggplot(dat_census %>% 
+ggplot(dat_census %>%
          mutate(hour = hour(start_time),
                 weekend = ifelse(dotw %in% c("Sun", "Sat"), "Weekend", "Weekday")))+
      geom_freqpoly(aes(hour, color = weekend), binwidth = 1)+
   labs(title="Bike share trips in Chicago - weekend vs weekday, May, 2018",
-       x="Hour", 
+       x="Hour",
        y="Trip Counts")+
      plotTheme
 ```
@@ -320,7 +320,7 @@ ggplot(dat_census %>%
 ggplot()+
   geom_sf(data = chicagoTracts %>%
           st_transform(crs=4326))+
-  geom_point(data = dat_census %>% 
+  geom_point(data = dat_census %>%
             mutate(hour = hour(start_time),
                 weekend = ifelse(dotw %in% c("Sun", "Sat"), "Weekend", "Weekday"),
                 time_of_day = case_when(hour(interval60) < 7 | hour(interval60) > 18 ~ "Overnight",
@@ -329,7 +329,7 @@ ggplot()+
                                  hour(interval60) >= 15 & hour(interval60) <= 18 ~ "PM Rush"))%>%
               group_by(from_station_id, from_latitude, from_longitude, weekend, time_of_day) %>%
               tally(),
-            aes(x=from_longitude, y = from_latitude, color = n), 
+            aes(x=from_longitude, y = from_latitude, color = n),
             fill = "transparent", alpha = 0.4, size = 0.3)+
   scale_colour_viridis(direction = -1,
   discrete = FALSE, option = "D")+
@@ -370,8 +370,8 @@ length(unique(dat_census$interval60)) * length(unique(dat_census$from_station_id
 
 
 
-study.panel <- 
-  expand.grid(interval60=unique(dat_census$interval60), 
+study.panel <-
+  expand.grid(interval60=unique(dat_census$interval60),
               from_station_id = unique(dat_census$from_station_id)) %>%
   left_join(., dat_census %>%
               select(from_station_id, from_station_name, Origin.Tract, from_longitude, from_latitude )%>%
@@ -379,7 +379,7 @@ study.panel <-
               group_by(from_station_id) %>%
               slice(1))
 # Calculate the number of rows in the resulting panel dataset
-nrow(study.panel)      
+nrow(study.panel)
 ```
 
 We create the full panel by summarizing counts by station for each time interval, keep census info and lat/lon information along for joining later to other data. We remove data for station IDs that are `FALSE`.
@@ -388,7 +388,7 @@ We also ditch a bit of data (this is why `study.panel` and `ride.panel` don't en
 
 ```{r create_panel , message = FALSE}
 # Create a panel dataset for bike ride data
-ride.panel <- 
+ride.panel <-
   dat_census %>%  # Start with the dat_census dataset
   mutate(Trip_Counter = 1) %>%  # Add a Trip_Counter variable, indicating one trip for each row
   right_join(study.panel) %>%  # Right join with the study.panel dataset to ensure all spatial-time combinations are included
@@ -404,7 +404,7 @@ ride.panel <-
 ```
 
 ```{r census_and_panel , message = FALSE}
-ride.panel <- 
+ride.panel <-
   left_join(ride.panel, chicagoCensus %>%
               as.data.frame() %>%
               select(-geometry), by = c("Origin.Tract" = "GEOID"))
@@ -412,13 +412,13 @@ ride.panel <-
 
 ## 3.3. Create time lags
 
-Creating time lag variables will add additional nuance about the demand during a given time period - hours before and during that day. 
+Creating time lag variables will add additional nuance about the demand during a given time period - hours before and during that day.
 
 We can also try to control for the effects of holidays that disrupt the expected demand during a given weekend or weekday. We have a holiday on May 28 - Memorial Day. For that three day weekend we could use some dummy variables indicating temporal proximity to the holiday.
 
 Keep in mind, that unique fixed effects must be in your training set when you run your models.
 
-We can evaluate the correlations in these lags. They are pretty strong. There's a Pearson's R of 0.84 for the `lagHour` - that's very, very strong. 
+We can evaluate the correlations in these lags. They are pretty strong. There's a Pearson's R of 0.84 for the `lagHour` - that's very, very strong.
 
 This makes a lot of intuitive sense - the demand right now should be relatively similar to the demand tomorrow at this time, and to the demand an hour from now, but twelve hours from now, we likely expect the opposite in terms of demand.
 
@@ -426,8 +426,8 @@ This makes a lot of intuitive sense - the demand right now should be relatively 
 ```{r time_lags , message = FALSE}
 # Arrange the ride.panel dataset based on 'from_station_id' and 'interval60'
 # This step ensures that the dataset is ordered properly for subsequent calculations
-ride.panel <- 
-  ride.panel %>% 
+ride.panel <-
+  ride.panel %>%
   arrange(from_station_id, interval60) %>%
 
 # Compute lag variables for the 'Trip_Count' variable at different time intervals
@@ -468,23 +468,23 @@ ride.panel <-
 
 ```{r evaluate_lags , warning = FALSE, message = FALSE}
 as.data.frame(ride.panel) %>%
-    group_by(interval60) %>% 
+    group_by(interval60) %>%
     summarise_at(vars(starts_with("lag"), "Trip_Count"), mean, na.rm = TRUE) %>%
     gather(Variable, Value, -interval60, -Trip_Count) %>%
     mutate(Variable = factor(Variable, levels=c("lagHour","lag2Hours","lag3Hours","lag4Hours",
                                                 "lag12Hours","lag1day")))%>%
-    group_by(Variable) %>%  
+    group_by(Variable) %>%
     summarize(correlation = round(cor(Value, Trip_Count),2))
 ```
 
 
 ## 4.1. Run Models
 
-We split our data into a training and a test set. We create five linear models using the `lm` funtion. Sometimes, for data such as these, Poisson distributions, designed for modeling counts, might be appropriate. I'll spare you the effort - linear models work better with this particular data set. 
+We split our data into a training and a test set. We create five linear models using the `lm` funtion. Sometimes, for data such as these, Poisson distributions, designed for modeling counts, might be appropriate. I'll spare you the effort - linear models work better with this particular data set.
 
 We create the models using our training data `ride.Train`. The first models include only temporal controls, but the later ones contain all of our lag information.
 
-Notice that we are using a partition that is user specified and is time dependent. 
+Notice that we are using a partition that is user specified and is time dependent.
 
 **Why are we splitting our data by time and not randomly??**
 
@@ -499,24 +499,24 @@ ride.Test <- filter(ride.panel, week < 20)
 
 
 ```{r five_models }
-reg1 <- 
+reg1 <-
   lm(Trip_Count ~  hour(interval60) + dotw + Temperature,  data=ride.Train)
 
-reg2 <- 
+reg2 <-
   lm(Trip_Count ~  from_station_name + dotw + Temperature,  data=ride.Train)
 
-reg3 <- 
-  lm(Trip_Count ~  from_station_name + hour(interval60) + dotw + Temperature + Precipitation, 
+reg3 <-
+  lm(Trip_Count ~  from_station_name + hour(interval60) + dotw + Temperature + Precipitation,
      data=ride.Train)
 
-reg4 <- 
+reg4 <-
   lm(Trip_Count ~  from_station_name +  hour(interval60) + dotw + Temperature + Precipitation +
-                   lagHour + lag2Hours +lag3Hours + lag12Hours + lag1day, 
+                   lagHour + lag2Hours +lag3Hours + lag12Hours + lag1day,
      data=ride.Train)
 
-reg5 <- 
+reg5 <-
   lm(Trip_Count ~  from_station_name + hour(interval60) + dotw + Temperature + Precipitation +
-                   lagHour + lag2Hours +lag3Hours +lag12Hours + lag1day + holidayLag + holiday, 
+                   lagHour + lag2Hours +lag3Hours +lag12Hours + lag1day + holidayLag + holiday,
      data=ride.Train)
 ```
 
@@ -524,7 +524,7 @@ reg5 <-
 
 When your models have finished running, create a nested data frame of test data by week. Nested data is common in most other programming languages. For instance, the javascript object notation file format (aka JSON) is highly nested.
 
-Nesting means that instead of merely having a "flat" file consisting of rows and columns, you have a matrix of other objects - imagine each cell in a matrix containing another matrix within it, or a list, or a list of lists. 
+Nesting means that instead of merely having a "flat" file consisting of rows and columns, you have a matrix of other objects - imagine each cell in a matrix containing another matrix within it, or a list, or a list of lists.
 
 The `purrr` package is designed to `map` functions through nested data structures. This concept is important - think of `map` as visiting each dataframe in a nested data set and applies a function to it.
 
@@ -535,9 +535,9 @@ This function is called in the code below in a few ways, one way is like so: `ma
 You don't need to manipulate anything else in this code block other than the `fit` argument.
 
 ```{r nest_data , warning = FALSE, message = FALSE}
-ride.Test.weekNest <- 
+ride.Test.weekNest <-
   ride.Test %>%
-  nest(-week) 
+  nest(-week)
 ```
 
 
@@ -546,7 +546,7 @@ model_pred <- function(dat, fit){
    pred <- predict(fit, newdata = dat)}
 ```
 
-When we run our predictions and summarize our results, we are going to have some NA data - recall we have some lag information that will necessarily trip up the model at the margins of the time frame. 
+When we run our predictions and summarize our results, we are going to have some NA data - recall we have some lag information that will necessarily trip up the model at the margins of the time frame.
 
 This code snippet is performing several operations on a nested data frame (ride.Test.weekNest) containing test data for weekly predictions of rideshare demand. Let's break down what each part of the code is doing:
 
@@ -575,13 +575,13 @@ The resulting data frame (week_predictions) contains predictions, observed value
 In summary, this code snippet performs model predictions, reshapes the data, calculates error metrics, and organizes the results into a single data frame for further analysis and evaluation of the regression models' performance in predicting rideshare demand.
 
 ```{r do_predicitons }
-week_predictions <- 
-  ride.Test.weekNest %>% 
+week_predictions <-
+  ride.Test.weekNest %>%
     mutate(ATime_FE = map(.x = data, fit = reg1, .f = model_pred),
            BSpace_FE = map(.x = data, fit = reg2, .f = model_pred),
            CTime_Space_FE = map(.x = data, fit = reg3, .f = model_pred),
            DTime_Space_FE_timeLags = map(.x = data, fit = reg4, .f = model_pred),
-           ETime_Space_FE_timeLags_holidayLags = map(.x = data, fit = reg5, .f = model_pred)) %>% 
+           ETime_Space_FE_timeLags_holidayLags = map(.x = data, fit = reg5, .f = model_pred)) %>%
     gather(Regression, Prediction, -data, -week) %>%
     mutate(Observed = map(data, pull, Trip_Count),
            Absolute_Error = map2(Observed, Prediction,  ~ abs(.x - .y)),
@@ -603,7 +603,7 @@ The best models - the lag models, are accurate to less than an average of one ri
 week_predictions %>%
   dplyr::select(week, Regression, MAE) %>%
   gather(Variable, MAE, -Regression, -week) %>%
-  ggplot(aes(week, MAE)) + 
+  ggplot(aes(week, MAE)) +
     geom_bar(aes(fill = Regression), position = "dodge", stat="identity") +
     scale_fill_manual(values = palette5) +
     labs(title = "Mean Absolute Errors by model specification and week") +
@@ -611,7 +611,7 @@ week_predictions %>%
 ```
 
 ```{r error_vs_actual_timeseries , warning = FALSE, message = FALSE}
-week_predictions %>% 
+week_predictions %>%
     mutate(interval60 = map(data, pull, interval60),
            from_station_id = map(data, pull, from_station_id)) %>%
     dplyr::select(interval60, from_station_id, Observed, Prediction, Regression) %>%
@@ -619,8 +619,8 @@ week_predictions %>%
     gather(Variable, Value, -Regression, -interval60, -from_station_id) %>%
     group_by(Regression, Variable, interval60) %>%
     summarize(Value = sum(Value)) %>%
-    ggplot(aes(interval60, Value, colour=Variable)) + 
-      geom_line(size = 1.1) + 
+    ggplot(aes(interval60, Value, colour=Variable)) +
+      geom_line(size = 1.1) +
       facet_wrap(~Regression, ncol=1) +
       labs(title = "Predicted/Observed bike share time series", subtitle = "Chicago; A test set of 2 weeks",  x = "Hour", y= "Station Trips") +
       plotTheme
@@ -631,10 +631,10 @@ Moving forward, let's stick with `reg5`, which seems to have the best goodness o
 We can look at our mean absolute errors by station - **there seems to be a spatial pattern to our error (what is it?)**, but we need to go a bit further to get at the temporal element of the error.
 
 ```{r errors_by_station, warning = FALSE, message = FALSE }
-week_predictions %>% 
+week_predictions %>%
     mutate(interval60 = map(data, pull, interval60),
-           from_station_id = map(data, pull, from_station_id), 
-           from_latitude = map(data, pull, from_latitude), 
+           from_station_id = map(data, pull, from_station_id),
+           from_latitude = map(data, pull, from_latitude),
            from_longitude = map(data, pull, from_longitude)) %>%
     select(interval60, from_station_id, from_longitude, from_latitude, Observed, Prediction, Regression) %>%
     unnest() %>%
@@ -643,7 +643,7 @@ week_predictions %>%
   summarize(MAE = mean(abs(Observed-Prediction), na.rm = TRUE))%>%
 ggplot(.)+
   geom_sf(data = chicagoCensus, color = "grey", fill = "transparent")+
-  geom_point(aes(x = from_longitude, y = from_latitude, color = MAE), 
+  geom_point(aes(x = from_longitude, y = from_latitude, color = MAE),
              fill = "transparent", alpha = 0.4)+
   scale_colour_viridis(direction = -1,
   discrete = FALSE, option = "D")+
@@ -658,13 +658,13 @@ ggplot(.)+
 If we plot observed vs. predicted for different times of day during the week and weekend, some patterns begin to emerge. We are certainly underpredicting in general, but **what do we begin to see about some of the outcomes that our model cannot explain?**
 
 ```{r obs_pred_all, warning=FALSE, message = FALSE, cache=TRUE}
-week_predictions %>% 
+week_predictions %>%
     mutate(interval60 = map(data, pull, interval60),
-           from_station_id = map(data, pull, from_station_id), 
-           from_latitude = map(data, pull, from_latitude), 
+           from_station_id = map(data, pull, from_station_id),
+           from_latitude = map(data, pull, from_latitude),
            from_longitude = map(data, pull, from_longitude),
            dotw = map(data, pull, dotw)) %>%
-    select(interval60, from_station_id, from_longitude, 
+    select(interval60, from_station_id, from_longitude,
            from_latitude, Observed, Prediction, Regression,
            dotw) %>%
     unnest() %>%
@@ -680,7 +680,7 @@ week_predictions %>%
     geom_abline(slope = 1, intercept = 0)+
   facet_grid(time_of_day~weekend)+
   labs(title="Observed vs Predicted",
-       x="Observed trips", 
+       x="Observed trips",
        y="Predicted trips")+
   plotTheme
 ```
@@ -692,13 +692,13 @@ Seems like these are concentrated in certain areas - along the water during week
 ** What is the implication for rebalancing with these errors - does it matter if they are higher volume locations?**
 
 ```{r station_summary, warning=FALSE, message = FALSE }
-week_predictions %>% 
+week_predictions %>%
     mutate(interval60 = map(data, pull, interval60),
-           from_station_id = map(data, pull, from_station_id), 
-           from_latitude = map(data, pull, from_latitude), 
+           from_station_id = map(data, pull, from_station_id),
+           from_latitude = map(data, pull, from_latitude),
            from_longitude = map(data, pull, from_longitude),
            dotw = map(data, pull, dotw) ) %>%
-    select(interval60, from_station_id, from_longitude, 
+    select(interval60, from_station_id, from_longitude,
            from_latitude, Observed, Prediction, Regression,
            dotw) %>%
     unnest() %>%
@@ -712,7 +712,7 @@ week_predictions %>%
   summarize(MAE = mean(abs(Observed-Prediction), na.rm = TRUE))%>%
   ggplot(.)+
   geom_sf(data = chicagoCensus, color = "grey", fill = "transparent")+
-  geom_point(aes(x = from_longitude, y = from_latitude, color = MAE), 
+  geom_point(aes(x = from_longitude, y = from_latitude, color = MAE),
              fill = "transparent", size = 0.5, alpha = 0.4)+
   scale_colour_viridis(direction = -1,
   discrete = FALSE, option = "D")+
@@ -721,7 +721,7 @@ week_predictions %>%
   facet_grid(weekend~time_of_day)+
   labs(title="Mean Absolute Errors, Test Set")+
   mapTheme
-  
+
 ```
 
 Let's focus on the morning commute, where station locations probably relate to likely users, who seem to be commuting downtown to the loop. How is the model performing on weekday mornings relative to demand for public transportation (e.g. possible user base). We can tell that there are a select few stations that are proving very resistant to our model - they have high income, low transit usage and are <50% minority, demographically.
@@ -729,16 +729,16 @@ Let's focus on the morning commute, where station locations probably relate to l
 Pro Tip: If you want to look at your nested data sets to figure out what to `pull` from them, you can check out one of the data frames by using matrix notation and calling something like this: `week_predictions$data[1] %>% glimpse()`
 
 ```{r station_summary2, warning=FALSE, message = FALSE }
-week_predictions %>% 
+week_predictions %>%
     mutate(interval60 = map(data, pull, interval60),
-           from_station_id = map(data, pull, from_station_id), 
-           from_latitude = map(data, pull, from_latitude), 
+           from_station_id = map(data, pull, from_station_id),
+           from_latitude = map(data, pull, from_latitude),
            from_longitude = map(data, pull, from_longitude),
            dotw = map(data, pull, dotw),
            Percent_Taking_Public_Trans = map(data, pull, Percent_Taking_Public_Trans),
            Med_Inc = map(data, pull, Med_Inc),
            Percent_White = map(data, pull, Percent_White)) %>%
-    select(interval60, from_station_id, from_longitude, 
+    select(interval60, from_station_id, from_longitude,
            from_latitude, Observed, Prediction, Regression,
            dotw, Percent_Taking_Public_Trans, Med_Inc, Percent_White) %>%
     unnest() %>%
@@ -760,7 +760,7 @@ week_predictions %>%
   labs(title="Errors as a function of socio-economic variables",
        y="Mean Absolute Error (Trips)")+
   plotTheme
-  
+
 ```
 
 ## 6.1. Interpreting our predictions

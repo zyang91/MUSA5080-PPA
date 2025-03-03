@@ -49,7 +49,7 @@ block_groups$demolition_count[is.na(block_groups$demolition_count)] <- 0
 
 # Join food access data to block groups
 food_sf <- food_sf %>% st_drop_geometry()
-block_groups <- left_join(block_groups, food_sf %>% select(GEOID10, HPSS_ACCESS), 
+block_groups <- left_join(block_groups, food_sf %>% select(GEOID10, HPSS_ACCESS),
                           by = c("GEOID10" = "GEOID10"))
 # Determine high demolition threshold (75th percentile)
 high_demolition_threshold <- quantile(block_groups$demolition_count, 0.75, na.rm = TRUE)

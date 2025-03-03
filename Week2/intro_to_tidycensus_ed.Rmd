@@ -23,7 +23,7 @@ This tutorial will introduce you to the use of R for US Census data. This code u
 
 Perhaps more importantly, this tutorial introduces you to the `tidyverse` world of libraries - the best data wrangling, summarizing and visualizing tools available in R. These packages are designed to "play nice" with each other - none of them use the same function names and they are maintained together by a team of developers to make sure they work well.
 
-R Studio publishes handy "cheat sheets" for popular R libraries, including [data wrangling in the tidyverse](https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf). 
+R Studio publishes handy "cheat sheets" for popular R libraries, including [data wrangling in the tidyverse](https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf).
 
 This exercise consists of a few classic planner's tasks:
 
@@ -35,7 +35,7 @@ This exercise consists of a few classic planner's tasks:
 
 4. Creating summary statistics regarding demographics for a collection of geographies
 
-# Setup 
+# Setup
 
 ## Install Libraries
 
@@ -117,12 +117,12 @@ What happens when you set `geometry` to `TRUE`?
 
 ```{r get_acs_2020, cache = TRUE, message = FALSE, warning = FALSE}
 acsTractsPHL.2020 <- get_acs(geography = "tract",
-                             year = 2020, 
-                             variables = acs_vars, 
-                             geometry = FALSE, 
-                             state = "PA", 
-                             county = "Philadelphia", 
-                             output = "wide") 
+                             year = 2020,
+                             variables = acs_vars,
+                             geometry = FALSE,
+                             state = "PA",
+                             county = "Philadelphia",
+                             output = "wide")
 ```
 
 # Wrangling Data with dplyr
@@ -174,13 +174,13 @@ Let's grab the 2016 data and do the same operations, but now - let's *chain the 
 
 ```{r get_acs_2016, cache = TRUE, message = FALSE}
 acsTractsPHL.2016 <- get_acs(geography = "tract",
-                             year = 2016, 
+                             year = 2016,
                              variables = acs_vars,
                              geometry = FALSE,
-                             state = "PA", 
+                             state = "PA",
                              county = "Philadelphia",
                              output = "wide") %>%
-  dplyr::select (GEOID, NAME, all_of(acs_vars)) %>% 
+  dplyr::select (GEOID, NAME, all_of(acs_vars)) %>%
   rename (total_pop.2016 = B01001_001E,
           total_HU.2016 = B25002_001E,
           total_vacant.2016 = B25002_003E,
@@ -212,7 +212,7 @@ Notice that you are overwriting allACS with a new data frame called the same thi
 
 ```{r do_mutates, cache = TRUE}
 allACS <- allACS %>%
-  mutate(change_med_HH_Income = med_HH_Income.2020 - (med_HH_Income.2016 * 1.08), 
+  mutate(change_med_HH_Income = med_HH_Income.2020 - (med_HH_Income.2016 * 1.08),
          change_Grad_Degree_Pct = (total_GradDeg.2020/total_pop.2020)-(total_GradDeg.2016/total_pop.2016))
 
 ```
@@ -269,7 +269,7 @@ ggplot(allACS)
 ```{r ggplot_histogram_simple, warning = FALSE, cache = TRUE, message = FALSE}
 ggplot(allACS) +
   geom_histogram(aes(change_med_HH_Income))
-  
+
 ```
 
 Let's make this a bit more complex, and add some labels.
@@ -280,9 +280,9 @@ ggplot(allACS)+
   labs(
     title = "Change in Philadelphia HH median income by tract, 2016-2020",
     caption = "Data: US Census Bureau, ACS 5-year estimates",
-    x="Change in Med HH Income (2020 dollars)", 
+    x="Change in Med HH Income (2020 dollars)",
        y="Number of tracts")
-  
+
 ```
 
 Wow, there are some tracts with a huge increase in Med HH Income! What is the simplest explanation for that?
@@ -294,9 +294,9 @@ ggplot(allACS)+
   labs(
     title = "Change in Philadelphia HH median income by tract, 2016-2020",
     caption = "Data: US Census Bureau, ACS 5-year estimates",
-    x="Change in Med HH Income (2020 dollars)", 
+    x="Change in Med HH Income (2020 dollars)",
        y="Number of tracts")
-  
+
 ```
 
 
@@ -325,20 +325,20 @@ We say that if a tract has a GEOID in `myTracts`, the variable `mtAiry` should t
 
 ```{r myTracts, cache = TRUE}
 
-myTracts <- c("42101023500", 
-              "42101023600", 
-              "42101023700", 
-              "42101025300", 
+myTracts <- c("42101023500",
+              "42101023600",
+              "42101023700",
+              "42101025300",
               "42101025400",
-              "42101025500", 
-              "42101025600", 
+              "42101025500",
+              "42101025600",
               "42101038800")
 
 allACS <- allACS %>%
   mutate(mtAiry = ifelse(GEOID %in% myTracts, "MT AIRY", "REST OF PHILADELPHIA"))
 ```
 
-Let's make a new summary table, this time accounting for the statistics for both Mt. Airy and the rest of the city. 
+Let's make a new summary table, this time accounting for the statistics for both Mt. Airy and the rest of the city.
 
 We can see that city-wide, "on average" the mean tract income level increased, while the median level decreased. Why might this be?
 
@@ -366,10 +366,10 @@ ggplot(allACS)+
   labs(
     title = "Change in Philadelphia HH median income by tract, 2016-2020",
     caption = "Data: US Census Bureau, ACS 5-year estimates",
-    x="Change in Med HH Income (2020 dollars)", 
+    x="Change in Med HH Income (2020 dollars)",
        y="Number of tracts")+
   facet_wrap(~mtAiry, scales = "free")
-  
+
 ```
 
 We can create a scatterplot to see what the relationship is between 2016 and 2020 income and where our Mt. Airy tracts fall.
@@ -384,7 +384,7 @@ What do you think this line represents? How does it help us interpret these poin
 
 ```{r ggplot_point1, warning = FALSE, cache = TRUE}
 ggplot(allACS)+
-  geom_point(aes(x =med_HH_Income.2016 * 1.08, 
+  geom_point(aes(x =med_HH_Income.2016 * 1.08,
                  y = med_HH_Income.2020,
                  color = mtAiry))+
   geom_abline(intercept = 0, slope = 1)+
@@ -392,12 +392,12 @@ ggplot(allACS)+
     title = "2020 Median HH Income as a Function of 2016 Median HH Income",
     subtitle = "All figures in 2020 dollars",
     caption = "Data: US Census Bureau, ACS 5-year estimates",
-    x="Med HH Income 2016 ($)", 
+    x="Med HH Income 2016 ($)",
     y="Med HH Income 2020 ($)")
-  
+
 ```
 
-There are very well established correlations between socio-demographic characteristics and wealth in the US. Philadelphia is no exception. A simple scatterplot is stark evidence of this correlation. 
+There are very well established correlations between socio-demographic characteristics and wealth in the US. Philadelphia is no exception. A simple scatterplot is stark evidence of this correlation.
 
 We can plot a `geom_smooth` trendline in here using the `method = "lm"` e.g. a linear fit to see. The default for `geom_smooth` is much more wiggly and may not be the best for visuals like this.
 
@@ -408,19 +408,19 @@ If you plot these data for 2020, do they look different?
 
 ```{r ggplot_point2, warning = FALSE, cache = TRUE, message = FALSE}
 ggplot(allACS)+
-  geom_point(aes(x = 100* pctWhite.2020, 
+  geom_point(aes(x = 100* pctWhite.2020,
                  y = med_HH_Income.2020,
                  color = mtAiry))+
-  geom_smooth(aes(x = 100* pctWhite.2020, 
-                  y = med_HH_Income.2020), 
+  geom_smooth(aes(x = 100* pctWhite.2020,
+                  y = med_HH_Income.2020),
               method = "lm", se = FALSE)+
   labs(
     title = "2020 Median HH Income as a Function of Pct White",
     subtitle = "All figures in 2020 dollars",
     caption = "Data: US Census Bureau, ACS 5-year estimates",
-    x="Pct. Residents Identifying as 'White Only'", 
+    x="Pct. Residents Identifying as 'White Only'",
     y="Med HH Income 2020 ($)")
-  
+
 ```
 
 # Spatial Data and Tidycensus
@@ -435,12 +435,12 @@ Observe the use of the `%>%` operator here - I'm going to chain all of our opera
 
 ```{r spatial_tidycensus, message=FALSE, warning=FALSE, cache=TRUE, include=FALSE}
 acsTractsPHL.2020.sf <- get_acs(geography = "tract",
-                             year = 2020, 
-                             variables = acs_vars, 
-                             geometry = TRUE, 
-                             state = "PA", 
-                             county = "Philadelphia", 
-                             output = "wide") %>% 
+                             year = 2020,
+                             variables = acs_vars,
+                             geometry = TRUE,
+                             state = "PA",
+                             county = "Philadelphia",
+                             output = "wide") %>%
   dplyr::select (GEOID, NAME, all_of(acs_vars)) %>%
   rename (total_pop.2020 = B01001_001E,
           total_HU.2020 = B25002_001E,
@@ -455,12 +455,12 @@ acsTractsPHL.2020.sf <- get_acs(geography = "tract",
 
 ```{r spatial_tidycensus_no_eval, message=FALSE, warning=FALSE, cache=TRUE, eval = FALSE}
 acsTractsPHL.2020.sf <- get_acs(geography = "tract",
-                             year = 2020, 
-                             variables = acs_vars, 
-                             geometry = TRUE, 
-                             state = "PA", 
-                             county = "Philadelphia", 
-                             output = "wide") %>% 
+                             year = 2020,
+                             variables = acs_vars,
+                             geometry = TRUE,
+                             state = "PA",
+                             county = "Philadelphia",
+                             output = "wide") %>%
   dplyr::select (GEOID, NAME, all_of(acs_vars)) %>%
   rename (total_pop.2020 = B01001_001E,
           total_HU.2020 = B25002_001E,
@@ -470,10 +470,10 @@ acsTractsPHL.2020.sf <- get_acs(geography = "tract",
           total_GradDeg.2020 = B06009_006E) %>%
   mutate(vacancyPct.2020 = total_vacant.2020/total_HU.2020,
          pctWhite.2020 = total_White.2020/total_pop.2020) %>%
-  mutate(mtAiry = ifelse(GEOID %in% myTracts, "MT AIRY", "REST OF PHILADELPHIA")) 
+  mutate(mtAiry = ifelse(GEOID %in% myTracts, "MT AIRY", "REST OF PHILADELPHIA"))
 ```
 
-Now we can create a a `geom_sf` which will allow you to map `sf` objects in `ggplot2` so long as they are have their projection set to WGS84 (aka web mercator). 
+Now we can create a a `geom_sf` which will allow you to map `sf` objects in `ggplot2` so long as they are have their projection set to WGS84 (aka web mercator).
 
 Notice we create a `geom_sf` which symbologizes our data and then another which is designed to represent the boundary of Mt. Airy.
 
@@ -493,11 +493,11 @@ ggplot()+
     subtitle = "",
     caption = "Data: US Census Bureau, ACS 5-year estimates")+
   theme_minimal()
-  
+
 ```
 
 
-# Discussion 
+# Discussion
 
 - How would you describe the income and demographic statistics and trends in Mt. Airy relative to those of Philadelphia as a whole?
 
